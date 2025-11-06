@@ -20,3 +20,7 @@ class UniversityDataset(_DatasetBase):
 	def save(self, clobber:bool=True, include_index:bool=False, **to_csv_kwargs)->None:
 		''' You cannot overwrite the original dataset. '''
 		raise Exception('Forbidden')
+	
+	def get_clean_copy(self)->_pd.DataFrame:
+		''' returns a copy of the dataset without any null values (removed entire record)'''
+		return self.get_frame().copy().dropna(axis=0, how='any')
