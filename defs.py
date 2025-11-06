@@ -17,6 +17,9 @@ class QuestioneOneData:
 	FrequentItemSet:_ClassVar[_Path]=_Path('datasets/q1/frequent_item_set.csv') # Meets support
 	AssociatonRules:_ClassVar[_Path]=_Path('dataset/q1/association_rules.csv') # Meets confidence
 
-FILEPATH_UNIVERSITY_RANKINGS:_Final[_Path] = _Path('datasets/Universities.csv')
+class QuestionTwoData:
+	Rankings:_ClassVar[_Path]= _Path('datasets/q2/Universities.csv')
+	CleanNormal:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormal.csv')
+	
 FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
 FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
