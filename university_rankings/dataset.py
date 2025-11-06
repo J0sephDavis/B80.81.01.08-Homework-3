@@ -147,9 +147,20 @@ class CleanNormalUniversity(_DatasetCSV):
 		]), ax=ax)
 		return fig,ax
 
-	return
 	
-
+def plot_and_save_dendrogram(
+			file:_Path,
+			data:CleanNormalUniversity,
+			model:_AgglomerativeClustering,
+			show:bool=False
+		)->None:
+	logger.debug(f'plot_and_save_dendrogram({file},...,...)')
+	fig,ax = data.plot_dendrogram(model)
+	logger.info(f'saving dendrogram to {file}.')
+	fig.savefig(fname=str(file))
+	if show:
+		fig.show()
+	return
 
 def question_two():
 	logger.info('===== Question Two =====')
