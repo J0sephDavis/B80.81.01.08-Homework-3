@@ -103,9 +103,13 @@ class AssRules():
 	def get_rules(self):
 		return self.rules
 
-def recommend_items(transaction:_List[str])->_List[str]:
+	def recommend(self, transaction:_List[str])->_List[str]:
+		''' Given a set of items, recommends another set of items'''
+		itemset = set(transaction)
+		return self.rules.loc[
+			(self.rules[self.cols.antecedents] == itemset), self.cols.consequents
+		].to_list()
 
-	return
 def question_one():
 	groceries = GroceriesDataset()
 	recset = RecommendationDataset.from_grocery_data(groceries) # For Question One.
