@@ -132,6 +132,7 @@ class AssociationRules(_DatasetCSV):
 			(rules[self.cols.antecedents] == itemset), self.cols.consequents
 		].to_list()
 		logger.debug(f'recommend->{rv}')
+		return rv
 
 def question_one():
 	logger.info('===== QUESTION ONE ======')
