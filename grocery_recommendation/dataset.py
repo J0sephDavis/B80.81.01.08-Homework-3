@@ -21,8 +21,8 @@ from enum import (
 	StrEnum as _StrEnum,
 	auto as _auto
 )
-import logging
-logger = logging.getLogger(_Q1D.logger_name)
+import logging as _logging
+logger = _logging.getLogger(_Q1D.logger_name)
 
 class GroceriesDataset(_DatasetBase, _DatasetTextFileMixin):
 	''' Loads the transactions line by line, Nx1 frame. '''
