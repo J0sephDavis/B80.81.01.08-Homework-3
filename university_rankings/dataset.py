@@ -28,11 +28,14 @@ logger = logging.getLogger(_Q2D.logger_name)
 
 class UniversityRankings(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q2D.Rankings
+	logger.debug(f'UniversityRankings.default_path: {default_path}')
 	def __init__(self):
+		logger.debug('UniversityRankings.__init__')
 		super().__init__(path=self.default_path, frame=None)
 
 	@classmethod
 	def create_from_file(cls,path=default_path)->'UniversityRankings':
+		logger.debug(f'UniversityRankings.create_from_file(path={path})')
 		return super().create_from_file(path)
 	
 	class Columns(_StrEnum):
@@ -59,11 +62,15 @@ class UniversityRankings(_DatasetCSVReadOnly):
 
 class CleanNormalUniversity(_DatasetCSV):
 	default_path:_ClassVar[_Path] = _Q2D.CleanNormal
+	logger.debug(f'CleanNormalUniversity.default_path: {default_path}')
 	def __init__(self, rankings:_Optional[UniversityRankings]=None):
+		logger.debug(f'CleanNormalUniversity.__init__(rankings={rankings})')
 		super().__init__(path=self.default_path, frame=None)
 		if self.path is not None and self.path.exists():
+			logger.debug('CleanNormalUniversity.__init__ - loaded from file')
 			self.load()
 		elif rankings is not None:
+			logger.debug('CleanNormalUniversity.__init__ - cleaning & normalizing from dataset')
 			frame:_pd.DataFrame = rankings.get_frame().drop(columns=[
 				UniversityRankings.Columns.CollegeName,
 				UniversityRankings.Columns.PublicPrivate,
@@ -78,7 +85,7 @@ class CleanNormalUniversity(_DatasetCSV):
 		''' perf hierarhical clustering
 		- Linkage:Complete
 		- Distance:eculidean
-		- Normalized data'''
+		logger.debug('CleanNormalUniversity.plot_dendrogram')
 		hc_model = _AgglomerativeClustering(
 			n_clusters=None,
 			distance_threshold=0,
@@ -99,6 +106,11 @@ class CleanNormalUniversity(_DatasetCSV):
 				else:
 					current_count += counts[child_idx - n_samples]
 		counts[i] = current_count
+		logger.debug(f'hc_model - counts:{counts}')
+		logger.debug(f'hc_model - n_samples:{n_samples}')
+		logger.debug(f'hc_model.children_:{hc_model.children_}')
+		logger.debug(f'hc_model.distances_:{hc_model.distances_}')
+		fig,ax = _plt.subplots(figsize=(10,10))
 		_dendrogram(_np.column_stack([
 			hc_model.children_,hc_model.distances_, counts
 		]))
