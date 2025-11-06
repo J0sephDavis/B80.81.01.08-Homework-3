@@ -76,29 +76,21 @@ class FrequentItemSet(_DatasetBase):
 		output.append(sep)
 		logger.info('\n'.join(output))
 
-class AssociationRules(_DatasetCSV):
+class AssociationRules(_DatasetBase, _DatasetSaveMixin):
 	default_path:_ClassVar[_Path] = _Q1D.AssociatonRules
 	logger.debug(f'AssociationRules.default_path={default_path}')
 	
 	def __init__(self,
-			  	freqSet: _Optional[FrequentItemSet] = None
+			  	freqSet: FrequentItemSet
 			  ) -> None:
 		logger.debug(f'AssociationRules.__init__(freqSet:{freqSet})')
 		super().__init__(path=self.default_path)
-		if self.path is not None and self.path.exists():
-			logger.debug('AssociationRules.__init__ load from file')
-			self.load()
-		elif freqSet is not None:
-			logger.debug('AssociationRules.__init__ create from freqSet')
-			self.frame = _association_rules(
-				freqSet.get_frame(),
-				metric='confidence',
-				min_threshold=0.2,
-			)
-		else:
-			err =  Exception('path is invalid and freqSet is None')
-			logger.error('AssociationRules.__init__, unreachable code reached.',exc_info=err)
-			raise err
+		logger.debug('AssociationRules.__init__ create from freqSet')
+		self.frame = _association_rules(
+			freqSet.get_frame(),
+			metric='confidence',
+			min_threshold=0.2,
+		).sort_values('confidence')
 
 	class cols(_StrEnum):
 		''' Columns we want to print'''
