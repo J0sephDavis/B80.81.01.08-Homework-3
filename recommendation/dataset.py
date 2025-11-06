@@ -29,4 +29,14 @@ class RecommendationDataset(_DatasetBase):
 		)
 	
 	def get_frequent_itemsets_apriori(self)->_pd.DataFrame: # QUESTION 1.B - Generate Frequent Itemsets
-		return _apriori(self.get_frame(), min_support=0.2)
+		freqset = _apriori(self.get_frame(), min_support=0.01)
+		# FOR ASSIGNMENT
+		freqset_COLNAMES = _apriori(self.get_frame(), min_support=0.01, use_colnames=True)
+		top_ten = freqset_COLNAMES.sort_values(by='support',ascending=False).iloc[0:10]
+		msg:str = 'Question 1.B - Top Ten Frequent Itemsets by Support:'
+		sep:str = len(msg)*'-'
+		print(msg,sep,sep='\n')
+		for rec in top_ten.itertuples(index=False):
+			print(f'Support: {rec[0]:.3f}\t{rec[1]}')
+		print(sep)
+		return freqset
