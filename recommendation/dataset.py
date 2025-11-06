@@ -9,7 +9,7 @@ from pathlib import Path as _Path
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
 from groceries import GroceriesDataset
-from ..defs import FILEPATH_RECOMMENDATION_DATA as _FILEPATH_RECOMMENDATION_DATA
+from defs import FILEPATH_RECOMMENDATION_DATA as _FILEPATH_RECOMMENDATION_DATA
 from mlxtend.frequent_patterns import apriori as _apriori
 class RecommendationDataset(_DatasetBase):
 	''' Class representing the recommendation data'''
