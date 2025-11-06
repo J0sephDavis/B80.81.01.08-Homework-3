@@ -143,6 +143,11 @@ def question_one():
 	frequentItemset.print_top_ten()
 	assRules.print_rules()
 	
+	request = ['soda', 'yogurt']
+	logger.info(f'Calculate recommendation for: {request}')
+	result = assRules.recommend(request)
+	logger.info(f'Recommended item: {result}')
+
 	def try_save(dataset:_DatasetCSV):
 		logger.debug(f'Q1.try_save {dataset}')
 		try:
@@ -151,7 +156,7 @@ def question_one():
 			logger.warning('Could not save dataset, already exists.')
 			print('question one, files already exist.')
 	
-	for dataset in [preProcessed, assRules]: # if we save frequent items we can't load the association rules. Unsure why
+	for dataset in [preProcessed, assRules, frequentItemset]:
 		try_save(dataset)
 	logger.info('=========================')
 	return
