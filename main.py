@@ -16,8 +16,15 @@ STREAM_HANDLER.setLevel(logging.INFO)
 
 _setup_handler(FILE_HANDLER)
 _setup_handler(STREAM_HANDLER)
-from grocery_recommendation.dataset import question_one
-question_one()
-from university_rankings.dataset import question_two
-question_two()
+
+RUN_Q1:bool = False
+RUN_Q2:bool = True
+
+if RUN_Q1:
+	from grocery_recommendation.dataset import question_one
+	question_one()
+	
+if RUN_Q2:
+	from university_rankings.dataset import question_two
+	question_two()
 exit()
