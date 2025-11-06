@@ -43,18 +43,13 @@ class GroceriesProcessed(_DatasetCSV):
 		else:
 			raise Exception('if the path does not exist, groceries must be defined.')
 
-class FrequentItemSet(_DatasetCSV):
+class FrequentItemSet(_DatasetBase):
 	default_path:_ClassVar[_Path] = _Q1D.FrequentItemSet
 	def __init__(self,
-				gProcessed:_Optional[GroceriesProcessed]=None
+				gProcessed:GroceriesProcessed
 			)->None:
 		super().__init__(path=self.default_path)
-		if self.path is not None and self.path.exists():
-			self.frame = self.load()
-		elif gProcessed is not None:
-			self.frame = _apriori(gProcessed.get_frame(), min_support=0.01, use_colnames=True)
-		else:
-			raise Exception('path is invalid & gProcessed is None.')
+		self.frame = _apriori(gProcessed.get_frame(), min_support=0.01, use_colnames=True)
 		
 	def print_top_ten(self):
 		freqset:_pd.DataFrame = self.get_frame()
@@ -125,6 +120,6 @@ def question_one():
 		except FileExistsError:
 			print('question one, files already exist.')
 	
-	for dataset in [preProcessed, frequentItemset, assRules]:
+	for dataset in [preProcessed, assRules]: # if we save frequent items we can't load the association rules. Unsure why
 		try_save(dataset)
 	return
