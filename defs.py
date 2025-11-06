@@ -15,7 +15,7 @@ class QuestioneOneData:
 	Groceries:_ClassVar[_Path] = _Path('datasets/q1/groceries.csv') # Raw data
 	PreProcessed:_ClassVar[_Path]=_Path('datasets/q1/recommendation_data.csv') # Hot encoded data
 	FrequentItemSet:_ClassVar[_Path]=_Path('datasets/q1/frequent_item_set.csv') # Meets support
-	AssociatonRules:_ClassVar[_Path]=_Path('dataset/q1/association_rules.csv') # Meets confidence
+	AssociatonRules:_ClassVar[_Path]=_Path('datasets/q1/association_rules.csv') # Meets confidence
 
 class QuestionTwoData:
 	Rankings:_ClassVar[_Path]= _Path('datasets/q2/Universities.csv')
