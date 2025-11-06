@@ -129,5 +129,6 @@ def question_two():
 	cleanNormal.save()
 	
 	d_fig, d_ax = cleanNormal.plot_dendrogram()
-	d_fig.show()
+	# d_fig.show()
+	d_fig.savefig(fname=_Q2D.DendrogramFigure)
 	return
