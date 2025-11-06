@@ -97,28 +97,26 @@ class CleanNormalUniversity(_DatasetCSV):
 			compute_full_tree=True
 		)
 
-
-	def plot_dendrogram(self)->_Tuple[_Figure, _Axes, _AgglomerativeClustering]:
+	def plot_dendrogram(self,
+				model:_AgglomerativeClustering,
+			)->_Tuple[_Figure, _Axes]:
 		''' perf hierarhical clustering
+		Arguments:
+		model -- If you have already made the model, provide it. Ignore n_clusters & distance threshold arguments
+		n_clusters -- given to AgglomerativeClustering
+		distance_threshold -- given to AgglomerativeClustering
+		
 		- Linkage:Complete
 		- Distance:eculidean
 		- Normalized data
-		Returns the dendrogram plot
+		Returns the dendrogram plot & model
 		'''
 		logger.debug('CleanNormalUniversity.plot_dendrogram')
-		hc_model = _AgglomerativeClustering(
-			n_clusters=None,
-			distance_threshold=0,
-			compute_full_tree=True,
-
-			linkage='complete',
-			metric='euclidean',
-		)
 		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
-		hc_model.fit(self.get_frame())
-		counts = _np.zeros(hc_model.children_.shape[0])
-		n_samples = len(hc_model.labels_)
-		for i, merge in enumerate(hc_model.children_):
+		model.fit(self.get_frame())
+		counts = _np.zeros(model.children_.shape[0])
+		n_samples = len(model.labels_)
+		for i, merge in enumerate(model.children_):
 			current_count = 0
 			for child_idx in merge:
 				if child_idx < n_samples:
@@ -126,28 +124,12 @@ class CleanNormalUniversity(_DatasetCSV):
 				else:
 					current_count += counts[child_idx - n_samples]
 		counts[i] = current_count
-		logger.debug(f'hc_model - counts:{counts}')
-		logger.debug(f'hc_model - n_samples:{n_samples}')
-		logger.debug(f'hc_model.children_:{hc_model.children_}')
-		logger.debug(f'hc_model.distances_:{hc_model.distances_}')
 		fig,ax = _plt.subplots(figsize=(10,10))
 		_dendrogram(_np.column_stack([
-			hc_model.children_,hc_model.distances_, counts
+			model.children_,model.distances_, counts
 		]), ax=ax)
-		return fig,ax, hc_model
+		return fig,ax
 
-def compare_clusters(n_clusters:int, data:CleanNormalUniversity):
-	logger.info(f'compare_clusters(n_clusters={n_clusters})')
-	model = data.agglomerative_cluster(n_clusters)
-	frame = data.get_frame().copy()
-	labels = model.fit_predict(frame)
-	frame['LABELS']=labels
-	frame_by_label = frame.groupby(by='LABELS')
-	median_stats = frame_by_label.median()
-	mean_stats = frame_by_label.mean()
-	logger.info(f'frame_by_label:{frame_by_label}')
-	logger.info(f'mean_stats:{mean_stats}')
-	logger.info(f'median_stats:{median_stats}')
 	return
 	
 
