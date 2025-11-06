@@ -23,6 +23,7 @@ class QuestionTwoData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.Q2'
 	Rankings:_ClassVar[_Path]= _Path('datasets/q2/Universities.csv')
 	CleanNormal:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormal.csv')
+	DendrogramFigure:_ClassVar[_Path] = _Path('university_dendrogram.tiff')
 	
 FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
 FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
