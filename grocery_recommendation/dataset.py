@@ -96,7 +96,7 @@ class AssociationRules(_DatasetBase, _DatasetSaveMixin):
 			freqSet.get_frame(),
 			metric='confidence',
 			min_threshold=0.2,
-		).sort_values('confidence')
+		).sort_values('confidence',ascending=False)
 
 	class cols(_StrEnum):
 		''' Columns we want to print'''
