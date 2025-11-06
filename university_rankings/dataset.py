@@ -4,21 +4,27 @@ from typing import (
 	Optional as _Optional,
 	List as _List,
 	Union as _Union,
+	ClassVar as _ClassVar,
 )
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
 from helpers.exceptions import DatasetInvalidPath as _DatasetInvalidPath
 from sklearn.preprocessing import Normalizer as _Normalizer
+from sklearn.cluster import AgglomerativeClustering as _AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram as _dendrogram
+import numpy as _np
+from defs import QuestionTwoData as _Q2D
 
-from defs import (
-	FILEPATH_UNIVERSITY_RANKINGS as _FILEPATH_UNIVERSITY_RANKINGS,
+from helpers.dataset import (
+	DatasetBase as _DatasetBase,
+	DatasetCSV as _DatasetCSV,
+	DatasetCSVReadOnly as _DatasetCSVReadOnly,
+	DatasetSaveMixin as _DSaveMixin,
+	DatasetLoadCSVMixin as _DLoadCSVMixin,
+	DatasetTextFileMixin as _DatasetTextFileMixin,
 )
-
-class UniversityDataset(_DatasetBase):
-	def __init__(self,
-			path=_FILEPATH_UNIVERSITY_RANKINGS,
-			)->None:
-		super().__init__(path)
+import logging
+logger = logging.getLogger(_Q2D.logger_name)
 	class Columns(_StrEnum):
 		CollegeName = r'College Name'
 		State = r'State'
