@@ -25,6 +25,16 @@ from helpers.dataset import (
 )
 import logging
 logger = logging.getLogger(_Q2D.logger_name)
+
+class UniversityRankings(_DatasetCSVReadOnly):
+	default_path:_ClassVar[_Path] = _Q2D.Rankings
+	def __init__(self):
+		super().__init__(path=self.default_path, frame=None)
+
+	@classmethod
+	def create_from_file(cls,path=default_path)->'UniversityRankings':
+		return super().create_from_file(path)
+	
 	class Columns(_StrEnum):
 		CollegeName = r'College Name'
 		State = r'State'
