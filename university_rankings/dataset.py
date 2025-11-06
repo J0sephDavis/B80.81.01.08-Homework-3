@@ -77,7 +77,7 @@ class CleanNormalUniversity(_DatasetCSV):
 				UniversityRankings.Columns.CollegeName,
 				UniversityRankings.Columns.PublicPrivate,
 				UniversityRankings.Columns.State,
-			]).dropna(how='all', axis=0)
+			]).dropna(how='any', axis=0)
 			normalizer = _Normalizer()
 			self.frame = _pd.DataFrame(normalizer.fit_transform(frame))
 		else:
