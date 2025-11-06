@@ -74,6 +74,39 @@ class CleanNormalUniversity(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 	
-	def get_clean_copy(self)->_pd.DataFrame:
-		''' returns a copy of the dataset without any null values (removed entire record)'''
-		return self.get_frame().copy().dropna(axis=0, how='any')
+	def plot_dendrogram(self):
+		''' perf hierarhical clustering
+		- Linkage:Complete
+		- Distance:eculidean
+		- Normalized data'''
+		hc_model = _AgglomerativeClustering(
+			n_clusters=None,
+			distance_threshold=0,
+			compute_full_tree=True,
+
+			linkage='complete',
+			metric='euclidean',
+		)
+		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
+		hc_model.fit(self.get_frame())
+		counts = _np.zeros(hc_model.children_.shape[0])
+		n_samples = len(hc_model.labels_)
+		for i, merge in enumerate(hc_model.children_):
+			current_count = 0
+			for child_idx in merge:
+				if child_idx < n_samples:
+					current_count += 1  # leaf node
+				else:
+					current_count += counts[child_idx - n_samples]
+		counts[i] = current_count
+		_dendrogram(_np.column_stack([
+			hc_model.children_,hc_model.distances_, counts
+		]))
+
+def question_two():
+	rankings = UniversityRankings.create_from_file()
+	cleanNormal = CleanNormalUniversity(rankings=rankings)
+	cleanNormal.save()
+	
+	cleanNormal.plot_dendrogram()
+	return
