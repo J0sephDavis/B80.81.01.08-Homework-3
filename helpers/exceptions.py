@@ -9,3 +9,7 @@ class DatasetFileExists(DatasetExceptionBase, FileExistsError):
 class DatasetMissingFrame(DatasetExceptionBase):
     ''' The dataset has no frame. '''
     pass
+
+class DatasetInvalidPath(DatasetExceptionBase):
+    '''  The path is invalid and cannot be used for saving or loading. '''
+    pass
