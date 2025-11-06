@@ -85,17 +85,34 @@ class CleanNormalUniversity(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 	
-	def agglomerative_cluster(self, n_clusters:int)->_AgglomerativeClustering:
+	def agglomerative_cluster(self,
+				n_clusters:_Optional[int],
+				distance_threshold:_Optional[int]
+			)->_AgglomerativeClustering:
 		''' Returns the model created through agglomerative modeling. 
 		n_clusters -- the number of clusters
 		'''
-		logger.debug('CleanNormalUniversity.agglomerative_cluster')
-		return _AgglomerativeClustering(
-			n_clusters=n_clusters,
-			metric='euclidean',
-			linkage='complete',
-			compute_full_tree=True
-		)
+		if n_clusters is None == distance_threshold is None:
+			raise Exception('Only one may be set')
+		logger.debug(f'CleanNormalUniversity.agglomerative_cluster(k={n_clusters}, dt={distance_threshold})')
+		if n_clusters is None:
+			return _AgglomerativeClustering(
+				n_clusters=None,
+				distance_threshold=distance_threshold,
+				metric='euclidean',
+				linkage='complete',
+				compute_full_tree=True,
+				compute_distances=True,
+			)
+		elif distance_threshold is None:
+			return _AgglomerativeClustering(
+				n_clusters=n_clusters,
+				metric='euclidean',
+				linkage='complete',
+				compute_full_tree=True,
+				compute_distances=True,
+			)
+		raise Exception('unintended')
 
 	def plot_dendrogram(self,
 				model:_AgglomerativeClustering,
