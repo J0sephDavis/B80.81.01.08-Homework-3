@@ -53,7 +53,7 @@ class GroceriesProcessed(_DatasetCSV):
 			logger.error('GroceriesProcessed, unreachable code reached.',exc_info=err)
 			raise err
 
-class FrequentItemSet(_DatasetBase):
+class FrequentItemSet(_DatasetBase, _DatasetSaveMixin):
 	default_path:_ClassVar[_Path] = _Q1D.FrequentItemSet
 	logger.debug(f'FrequentItemSet.default_path={default_path}')
 	def __init__(self,
@@ -75,6 +75,11 @@ class FrequentItemSet(_DatasetBase):
 			output.append(f'Support: {rec[0]:.3f}\t{rec[1]}')
 		output.append(sep)
 		logger.info('\n'.join(output))
+
+	def save(self, clobber: bool = True, include_index: bool = False):
+		if self.frame is not None:
+			self.frame.sort_values(by='support',ascending=False, inplace=True)
+		return super().save(clobber=clobber,include_index=include_index)
 
 class AssociationRules(_DatasetBase, _DatasetSaveMixin):
 	default_path:_ClassVar[_Path] = _Q1D.AssociatonRules
