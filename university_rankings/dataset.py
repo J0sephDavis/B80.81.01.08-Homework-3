@@ -27,6 +27,8 @@ from helpers.dataset import (
 import logging
 logger = logging.getLogger(_Q2D.logger_name)
 import matplotlib.pyplot as _plt
+from matplotlib.figure import Figure as _Figure
+from matplotlib.axes import Axes as _Axes
 
 class UniversityRankings(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q2D.Rankings
@@ -83,7 +85,7 @@ class CleanNormalUniversity(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 	
-	def plot_dendrogram(self)->_Tuple[_plt.Figure, _plt.Axes]:
+	def plot_dendrogram(self)->_Tuple[_Figure, _Axes]:
 		''' perf hierarhical clustering
 		- Linkage:Complete
 		- Distance:eculidean
