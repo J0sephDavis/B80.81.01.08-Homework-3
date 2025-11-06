@@ -8,6 +8,7 @@ from helpers.dataset import (
 	DatasetBase as _DatasetBase,
 	DatasetCSV as _DatasetCSV,
 	DatasetTextFileMixin as _DatasetTextFileMixin,
+	DatasetSaveMixin as _DatasetSaveMixin,
 )
 from helpers.exceptions import DatasetInvalidPath as _DatasetInvalidPath
 from pathlib import Path as _Path
