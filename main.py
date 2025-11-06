@@ -2,7 +2,6 @@ from defs import app_logger_name
 from datetime import datetime
 import logging
 logger = logging.getLogger(app_logger_name)
-logger.setLevel(logging.DEBUG)
 LOG_FORMATTER = logging.Formatter(fmt=r'%(levelname)s;%(name)s;%(asctime)s | %(message)s')
 def _setup_handler(handler:logging.Handler):
 	handler.setFormatter(LOG_FORMATTER)
