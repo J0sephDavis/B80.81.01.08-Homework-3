@@ -123,4 +123,12 @@ def question_one():
 	assRules = AssociationRules(freqSet=frequentItemset)
 	frequentItemset.print_top_ten()
 	assRules.print_rules()
+	def try_save(dataset:_DatasetCSV):
+		try:
+			dataset.save()
+		except FileExistsError:
+			print('question one, files already exist.')
+	
+	for dataset in [preProcessed, frequentItemset, assRules]:
+		try_save(dataset)
 	return
