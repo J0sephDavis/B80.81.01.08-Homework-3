@@ -31,6 +31,7 @@ class GroceriesDataset(_DatasetBase, _DatasetTextFileMixin):
 	default_path:_ClassVar[_Path] = _Q1D.Groceries
 	def __init__(self)->None:
 		super().__init__(self.default_path)
+		self.load()
 
 class GroceriesProcessed(_DatasetCSV):
 	''' The Frequent Item set, hot encoded with pd get_dummies. '''
