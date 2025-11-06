@@ -85,7 +85,20 @@ class CleanNormalUniversity(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 	
-	def plot_dendrogram(self)->_Tuple[_Figure, _Axes]:
+	def agglomerative_cluster(self, n_clusters:int)->_AgglomerativeClustering:
+		''' Returns the model created through agglomerative modeling. 
+		n_clusters -- the number of clusters
+		'''
+		logger.debug('CleanNormalUniversity.agglomerative_cluster')
+		return _AgglomerativeClustering(
+			n_clusters=n_clusters,
+			metric='euclidean',
+			linkage='complete',
+			compute_full_tree=True
+		)
+
+
+	def plot_dendrogram(self)->_Tuple[_Figure, _Axes, _AgglomerativeClustering]:
 		''' perf hierarhical clustering
 		- Linkage:Complete
 		- Distance:eculidean
@@ -121,7 +134,23 @@ class CleanNormalUniversity(_DatasetCSV):
 		_dendrogram(_np.column_stack([
 			hc_model.children_,hc_model.distances_, counts
 		]), ax=ax)
-		return fig,ax
+		return fig,ax, hc_model
+
+def compare_clusters(n_clusters:int, data:CleanNormalUniversity):
+	logger.info(f'compare_clusters(n_clusters={n_clusters})')
+	model = data.agglomerative_cluster(n_clusters)
+	frame = data.get_frame().copy()
+	labels = model.fit_predict(frame)
+	frame['LABELS']=labels
+	frame_by_label = frame.groupby(by='LABELS')
+	median_stats = frame_by_label.median()
+	mean_stats = frame_by_label.mean()
+	logger.info(f'frame_by_label:{frame_by_label}')
+	logger.info(f'mean_stats:{mean_stats}')
+	logger.info(f'median_stats:{median_stats}')
+	return
+	
+
 
 def question_two():
 	logger.info('===== Question Two =====')
@@ -129,9 +158,15 @@ def question_two():
 	cleanNormal = CleanNormalUniversity(rankings=rankings)
 	cleanNormal.save()
 	
-	d_fig, d_ax = cleanNormal.plot_dendrogram()
+	d_fig, d_ax, model = cleanNormal.plot_dendrogram()
 	# d_fig.show()
 	logger.info('saving dendrogram.')
 	d_fig.savefig(fname=_Q2D.DendrogramFigure)
+	logger.info(f'clusters: {model.n_clusters_}')
+	logger.warning('we must somehow estimate the proper amount of clusters....')
+	
+	n_clusters = [2,4,6]
+	for n in n_clusters:
+		compare_clusters(n, cleanNormal)
 	logger.info('========================')
 	return
