@@ -31,9 +31,9 @@ import matplotlib.pyplot as _plt
 class UniversityRankings(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q2D.Rankings
 	logger.debug(f'UniversityRankings.default_path: {default_path}')
-	def __init__(self):
+	def __init__(self, path:_Path=default_path):
 		logger.debug('UniversityRankings.__init__')
-		super().__init__(path=self.default_path, frame=None)
+		super().__init__(path=path, frame=None)
 
 	@classmethod
 	def create_from_file(cls,path=default_path)->'UniversityRankings':
