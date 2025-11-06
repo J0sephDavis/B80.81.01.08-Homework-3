@@ -30,5 +30,5 @@ class GroceriesDataset(_DatasetBase):
 	def hot_encode_transactions(self)->_pd.DataFrame: # QUESTION 1.A
 		''' Used to hotencode transactions when making the recommendation dataset. '''
 		frame = self.get_frame()
-		dumm = frame['Transaction'].str.get_dummies(sep=',')
+		dumm = frame['Transaction'].str.get_dummies(sep=',').astype(bool)
 		return dumm
