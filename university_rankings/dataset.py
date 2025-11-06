@@ -5,6 +5,7 @@ from typing import (
 	List as _List,
 	Union as _Union,
 	ClassVar as _ClassVar,
+	Tuple as _Tuple,
 )
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
@@ -25,6 +26,7 @@ from helpers.dataset import (
 )
 import logging
 logger = logging.getLogger(_Q2D.logger_name)
+import matplotlib.pyplot as _plt
 
 class UniversityRankings(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q2D.Rankings
@@ -81,10 +83,13 @@ class CleanNormalUniversity(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 	
-	def plot_dendrogram(self):
+	def plot_dendrogram(self)->_Tuple[_plt.Figure, _plt.Axes]:
 		''' perf hierarhical clustering
 		- Linkage:Complete
 		- Distance:eculidean
+		- Normalized data
+		Returns the dendrogram plot
+		'''
 		logger.debug('CleanNormalUniversity.plot_dendrogram')
 		hc_model = _AgglomerativeClustering(
 			n_clusters=None,
@@ -113,12 +118,14 @@ class CleanNormalUniversity(_DatasetCSV):
 		fig,ax = _plt.subplots(figsize=(10,10))
 		_dendrogram(_np.column_stack([
 			hc_model.children_,hc_model.distances_, counts
-		]))
+		]), ax=ax)
+		return fig,ax
 
 def question_two():
 	rankings = UniversityRankings.create_from_file()
 	cleanNormal = CleanNormalUniversity(rankings=rankings)
 	cleanNormal.save()
 	
-	cleanNormal.plot_dendrogram()
+	d_fig, d_ax = cleanNormal.plot_dendrogram()
+	d_fig.show()
 	return
