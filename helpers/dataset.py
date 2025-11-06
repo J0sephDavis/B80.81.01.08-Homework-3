@@ -38,7 +38,7 @@ class DatasetBase:
 		self.path = path
 		self.frame = frame
 		self.use_columns = use_columns
-		if self.frame is not None:
+		if self.frame is not None and self.path is not None:
 			self.save()
 		if self.path is not None and self.path.exists():
 			self.load()
