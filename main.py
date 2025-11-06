@@ -18,7 +18,6 @@ _setup_handler(FILE_HANDLER)
 _setup_handler(STREAM_HANDLER)
 from grocery_recommendation.dataset import question_one
 question_one()
-
 from university_rankings.dataset import question_two
 question_two()
 exit()
