@@ -121,4 +121,6 @@ def question_one():
 	preProcessed = GroceriesProcessed(grocieres=groceries)
 	frequentItemset = FrequentItemSet(gProcessed=preProcessed)
 	assRules = AssociationRules(freqSet=frequentItemset)
+	frequentItemset.print_top_ten()
 	assRules.print_rules()
+	return
