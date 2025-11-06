@@ -124,11 +124,14 @@ class CleanNormalUniversity(_DatasetCSV):
 		return fig,ax
 
 def question_two():
+	logger.info('===== Question Two =====')
 	rankings = UniversityRankings.create_from_file()
 	cleanNormal = CleanNormalUniversity(rankings=rankings)
 	cleanNormal.save()
 	
 	d_fig, d_ax = cleanNormal.plot_dendrogram()
 	# d_fig.show()
+	logger.info('saving dendrogram.')
 	d_fig.savefig(fname=_Q2D.DendrogramFigure)
+	logger.info('========================')
 	return
