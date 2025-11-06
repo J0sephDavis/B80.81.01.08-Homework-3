@@ -22,7 +22,6 @@ from enum import (
 	auto as _auto
 )
 
-
 class GroceriesDataset(_DatasetBase, _DatasetTextFileMixin):
 	''' Loads the transactions line by line, Nx1 frame. '''
 	default_path:_ClassVar[_Path] = _Q1D.Groceries
@@ -38,7 +37,7 @@ class GroceriesProcessed(_DatasetCSV):
 			)->None:
 		super().__init__(path=self.default_path)
 		if self.path is not None and self.path.exists():
-			self.frame = self.load()
+			self.load()
 		elif grocieres is not None:
 			self.frame = grocieres.get_frame()['Transaction'].str.get_dummies(sep=',').astype(bool)
 		else:
@@ -75,7 +74,7 @@ class AssociationRules(_DatasetCSV):
 			  ) -> None:
 		super().__init__(path=self.default_path)
 		if self.path is not None and self.path.exists():
-			self.frame = self.load()
+			self.load()
 		elif freqSet is not None:
 			self.frame = _association_rules(
 				freqSet.get_frame(),
