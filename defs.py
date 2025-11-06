@@ -1,9 +1,21 @@
 from typing import (
 	Final as _Final,
+	Dict as _Dict,
 )
 from pathlib import Path as _Path
-FILEPATH_GROCERIES:_Final[_Path] = _Path('datasets/groceries.csv')
-FILEPATH_RECOMMENDATION_DATA:_Final[_Path] = _Path('datasets/g_recommendation_data.csv')
+
+''' Question 1
+Groceries -- Raw datasets
+Recommendation Data -- The processed dataset
+Frequent Item Set -- The frequent itemsets, for assignment results
+Association Rules -- The rules for analysis
+'''
+QuestionOne:_Final[_Dict[str,_Path]] = {
+	'Groceries':_Path('datasets/q1/groceries.csv'),
+	'Recommendation':_Path('datasets/q1/recommendation_data.csv'),
+	'FrequentItemSet':_Path('datasets/q1/frequent_item_set.csv'),
+	'AssociatonRules':_Path('dataset/q1/association_rules.csv')
+}
 FILEPATH_UNIVERSITY_RANKINGS:_Final[_Path] = _Path('datasets/Universities.csv')
 FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
 FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
