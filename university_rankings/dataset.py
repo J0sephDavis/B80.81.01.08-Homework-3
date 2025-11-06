@@ -57,9 +57,22 @@ class UniversityRankings(_DatasetCSVReadOnly):
 		RatioStudentFaculty = r'stud./fac. ratio'
 		GraduationRate = r'Graduation rate'
 
-	def save(self, clobber:bool=True, include_index:bool=False, **to_csv_kwargs)->None:
-		''' You cannot overwrite the original dataset. '''
-		raise Exception('Forbidden')
+class CleanNormalUniversity(_DatasetCSV):
+	default_path:_ClassVar[_Path] = _Q2D.CleanNormal
+	def __init__(self, rankings:_Optional[UniversityRankings]=None):
+		super().__init__(path=self.default_path, frame=None)
+		if self.path is not None and self.path.exists():
+			self.load()
+		elif rankings is not None:
+			frame:_pd.DataFrame = rankings.get_frame().drop(columns=[
+				UniversityRankings.Columns.CollegeName,
+				UniversityRankings.Columns.PublicPrivate,
+				UniversityRankings.Columns.State,
+			]).dropna(how='all', axis=0)
+			normalizer = _Normalizer()
+			self.frame = _pd.DataFrame(normalizer.fit_transform(frame))
+		else:
+			raise Exception('invalid path, rankings = None')
 	
 	def get_clean_copy(self)->_pd.DataFrame:
 		''' returns a copy of the dataset without any null values (removed entire record)'''
