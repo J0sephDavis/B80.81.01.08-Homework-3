@@ -146,13 +146,12 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			distance_threshold=self.distance_threshold,
 			**self.aggcluster_default_args
 		)
-		frame = rankings.get_frame().copy()
-		frame['LABEL'] = self.model.fit_predict(frame)
-		self.frame = frame
+		self.frame = rankings.get_frame().copy()
+		self.model.fit(self.frame)
+		self.get_frame()['LABELS']=self.model.labels_
 	
 	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
 		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
-		self.model.fit(self.get_frame())
 		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
 		# Generate linkage table
 		counts = _np.zeros(self.model.children_.shape[0])
