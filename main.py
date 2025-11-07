@@ -38,7 +38,7 @@ try:
 		question_two()
 
 	if RUN_Q3:
-		from cereal import question_three
+		from cereal.cereal import question_three
 		question_three()
 except Exception as e:
 	logger.error('UNHANDLED EXCEPTION', exc_info=e)
