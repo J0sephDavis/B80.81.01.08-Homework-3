@@ -24,7 +24,8 @@ _setup_handler(FILE_HANDLER)
 _setup_handler(STREAM_HANDLER)
 
 RUN_Q1:bool = False
-RUN_Q2:bool = True
+RUN_Q2:bool = False
+RUN_Q3:bool = True
 logger.debug(f'RUN_Q1:{RUN_Q1}')
 logger.debug(f'RUN_Q2:{RUN_Q2}')
 try:
@@ -35,6 +36,10 @@ try:
 	if RUN_Q2:
 		from university_rankings.dataset import question_two
 		question_two()
+
+	if RUN_Q3:
+		from cereal import question_three
+		question_three()
 except Exception as e:
 	logger.error('UNHANDLED EXCEPTION', exc_info=e)
 
