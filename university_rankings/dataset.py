@@ -150,7 +150,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		frame['LABEL'] = self.model.fit_predict(frame)
 		self.frame = frame
 	
-	def plotsave_dendrogram(self, show:bool=False)->_Tuple[_Figure,_Axes]:
+	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
 		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
 		self.model.fit(self.get_frame())
 		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
@@ -173,9 +173,8 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			ax=ax,
 			color_threshold=self.distance_threshold
 		)
-		
-		logger.info(f'saving dendrogram to {self.figure_file}.')
-		fig.savefig(fname=str(self.figure_file))
+		if save_to_file:
+			fig.savefig(fname=str(self.figure_file))
 		if show:
 			fig.show()
 		return fig,ax
@@ -209,7 +208,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		frame=self.get_frame()
 		for label in frame['LABEL'].unique():
 			file = _Q2D.folder_boxplots.joinpath(f'university_cn boxplot label={label}.tiff')
-			if file.exists():
+			if file.exists() and save_to_file:
 				logger.warning(f'File already exists. Skipping. {file}')
 			fig,ax = _plt.subplots()
 			fig.suptitle(f'UniversityCleanNormal Agglomerative Label: {label}')
@@ -225,18 +224,18 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			if show:
 				fig.show()
 
-def generate_many_dendrograms(cleanNormalRankings:CleanNormalUniversity)->None:
+def generate_many_dendrograms(cleanNormalRankings:CleanNormalUniversity, save_to_file:bool, show:bool)->None:
 	logger.info('CleanNormalUniversity.generate_many_dendrograms')
-	CleanNormalLabeled(cleanNormalRankings, 0).plotsave_dendrogram(False)
+	CleanNormalLabeled(cleanNormalRankings, 0).plotsave_dendrogram(save_to_file=save_to_file,show=show)
 	for it in [x/100 for x in range(40, 105, 5)]:
 		if it==0:# skip
 			continue
 		logger.debug(f'distance_threshold:{it}')
 		data = CleanNormalLabeled(cleanNormalRankings,it)
-		if data.figure_file.exists():
+		if data.figure_file.exists() and save_to_file:
 			logger.info(f'{data.figure_file} already exists. skipping...')
 			continue
-		data.plotsave_dendrogram(False)
+		data.plotsave_dendrogram(save_to_file=save_to_file,show=show)
 
 
 def question_two():
@@ -248,7 +247,7 @@ def question_two():
 	except:
 		logger.debug('cleanNormal data already exists, did not overwrite.')
 		pass
-	generate_many_dendrograms(cleanNormal)
+	generate_many_dendrograms(cleanNormal, save_to_file=False, show=True)
 	
 	logger.info('A distance threshold of 0.80 was decided upon for our ideal model.')
 	labeledData:CleanNormalLabeled = CleanNormalLabeled(cleanNormal, 0.80)
