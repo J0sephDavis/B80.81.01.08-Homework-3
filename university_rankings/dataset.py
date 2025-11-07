@@ -173,7 +173,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			ax=ax,
 			color_threshold=self.distance_threshold
 		)
-		# xlbls = ax.get_xmajorticklabels()
+		# https://stackoverflow.com/questions/4700614/how-to-put-the-legend-outside-the-plot
 		leafa = dend['leaves']
 		ordered_clust = self.model.labels_[leafa]
 		leaf_colors=dend['leaves_color_list']
