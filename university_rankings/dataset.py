@@ -32,7 +32,7 @@ _Q2D.folder_boxplots.mkdir(mode=0o775, parents=True, exist_ok=True)
 import matplotlib.pyplot as _plt
 from matplotlib.figure import Figure as _Figure
 from matplotlib.axes import Axes as _Axes
-
+import matplotlib.patches as _patches
 class UniversityRankings(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q2D.Rankings
 	logger.debug(f'UniversityRankings.default_path: {default_path}')
@@ -166,12 +166,38 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		counts[i] = current_count
 		
 		fig,ax = _plt.subplots(figsize=(10,10))
+		ax.set_title(f'distance_threshold={self.distance_threshold:0.2f}')
 		logger.debug('call dendrogram plotter')	
-		_dendrogram(
+		dend = _dendrogram(
 			Z= _np.column_stack([self.model.children_,self.model.distances_, counts]),
 			ax=ax,
 			color_threshold=self.distance_threshold
 		)
+		# xlbls = ax.get_xmajorticklabels()
+		leafa = dend['leaves']
+		ordered_clust = self.model.labels_[leafa]
+		leaf_colors=dend['leaves_color_list']
+		color_map = {}
+		for lbl,color in zip(ordered_clust, leaf_colors):
+			color_map.setdefault(lbl,color)
+		if len(color_map) < 50:
+			# If there are too many clusters you can override this, but its ugly.
+			legend_patches = [
+				_patches.Patch(color=color_map[k],label=f'C{k}')
+				for k in sorted(color_map)
+			]
+			ax.legend(
+				handles= legend_patches,
+				title=f'Clusters ({len(color_map)})',
+				loc='upper center',
+				frameon=True,
+				bbox_to_anchor=(0.5,1.05),
+				ncol=8,
+				fancybox=True,
+				shadow=True
+			)
+
+		
 		if save_to_file:
 			fig.savefig(fname=str(self.figure_file))
 		if show:
@@ -183,7 +209,6 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		frame_by_label = self.get_frame().groupby(by='LABEL')
 		median = frame_by_label.median()
 		mean = frame_by_label.mean()
-
 
 		meanfig,ax = _plt.subplots()
 		mean.plot(kind='bar',ax=ax)
