@@ -124,6 +124,7 @@ class CleanNormalUniversity(_DatasetCSV):
 		return fig,ax
 
 class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
+	COLUMN_LABEL:_ClassVar[str] = 'LABEL'
 	default_Path:_ClassVar[_Path] = _Q2D.CleanNormalLabeled
 	aggcluster_default_args:_ClassVar[_Dict] = {
 		'metric':'euclidean',
@@ -148,7 +149,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		)
 		self.frame = rankings.get_frame().copy()
 		self.model.fit(self.frame)
-		self.get_frame()['LABEL']=self.model.labels_
+		self.get_frame()[self.COLUMN_LABEL]=self.model.labels_
 	
 	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
 		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
@@ -205,7 +206,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	
 	def get_summary_statistics(self, save_to_file:bool=True, show:bool=False)->_Tuple[_pd.DataFrame, _pd.DataFrame]:
 		''' Calculates mean & median with groupby=LABEL, saves and returns frames. '''
-		frame_by_label = self.get_frame().groupby(by='LABEL')
+		frame_by_label = self.get_frame().groupby(by=self.COLUMN_LABEL)
 		median = frame_by_label.median()
 		mean = frame_by_label.mean()
 
@@ -229,7 +230,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		''' Creates a boxplot for subsets of the frame by LABEL. '''
 		logger.info('Plotting features boxplots...')
 		frame=self.get_frame()
-		for label in frame['LABEL'].unique():
+		for label in frame[self.COLUMN_LABEL].unique():
 			file = _Q2D.folder_boxplots.joinpath(f'university_cn boxplot label={label}.tiff')
 			if file.exists() and save_to_file:
 				logger.warning(f'File already exists. Skipping. {file}')
@@ -237,7 +238,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			fig.suptitle(f'UniversityCleanNormal Agglomerative Label: {label}')
 			fig.set_dpi(500)
 			fig.set_size_inches((10,10))
-			label_frame = frame.loc[frame['LABEL']==label].drop(columns=['LABEL'])
+			label_frame = frame.loc[frame[self.COLUMN_LABEL]==label].drop(columns=[self.COLUMN_LABEL])
 			label_frame.boxplot(
 				ax=ax, rot=25
 			)
@@ -278,6 +279,14 @@ def question_two():
 
 	labeledData.get_summary_statistics(save_to_file=True)
 	labeledData.plot_boxplots(save_to_file=True,show=False)
+	logger.info('Quest 2.D information.')
+	frame = rankings.get_frame().copy().loc[rankings.get_frame().index.isin(cleanNormal.get_frame().index)]
+	frame[CleanNormalLabeled.COLUMN_LABEL] = labeledData.get_frame()[CleanNormalLabeled.COLUMN_LABEL]
+	label_by_private_public = frame.groupby(by=CleanNormalLabeled.COLUMN_LABEL).value_counts(subset=[UniversityRankings.Columns.PublicPrivate])
+	label_by_private_public.to_csv(_Q2D.PrivatePublicLabels,index=True)
+
+	label_by_state = frame.groupby(by=CleanNormalLabeled.COLUMN_LABEL).value_counts(subset=[UniversityRankings.Columns.State])
+	label_by_state.to_csv(_Q2D.StateLabels,index=True)
 
 	logger.info('========================')
 	return

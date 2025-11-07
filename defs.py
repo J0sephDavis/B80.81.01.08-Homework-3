@@ -28,6 +28,8 @@ class QuestionTwoData:
 	folder_dendrograms:_ClassVar[_Path] = _Path('q2/dendrograms')
 	folder_boxplots:_ClassVar[_Path] = _Path('q2/boxplots')
 	CleanNormalLabeled:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalLabeled.csv')
+	PrivatePublicLabels:_ClassVar[_Path] = _Path('datasets/q2/PublicPrivateSummary.csv')
+	StateLabels:_ClassVar[_Path] = _Path('datasets/q2/StateLabelSummary.csv')
 	
 FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
 FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
