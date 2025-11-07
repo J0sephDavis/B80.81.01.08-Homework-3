@@ -23,7 +23,11 @@ class QuestionTwoData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.Q2'
 	Rankings:_ClassVar[_Path]= _Path('datasets/q2/Universities.csv')
 	CleanNormal:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormal.csv')
-	DendrogramFolder:_ClassVar[_Path] = _Path('q2/dendrograms')
+	CleanNormalMean:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalMean.csv')
+	CleanNormalMedian:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalMedian.csv')
+	folder_dendrograms:_ClassVar[_Path] = _Path('q2/dendrograms')
+	folder_boxplots:_ClassVar[_Path] = _Path('q2/boxplots')
+	CleanNormalLabeled:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalLabeled.csv')
 	
 FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
 FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
