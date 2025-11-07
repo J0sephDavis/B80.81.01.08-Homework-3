@@ -37,5 +37,6 @@ class QuestionThreeData:
 	Cereal:_ClassVar[_Path] = datasets_folder.joinpath('q3/Cereals.csv')
 	folder_dendrograms:_ClassVar[_Path] = _Path('q3/dendrograms')
 	CerealCleanedNormalized:_ClassVar[_Path] = datasets_folder.joinpath('q3/CerealsCleanNormal.csv')
+	CerealCleanedNormalLabeled:_ClassVar[_Path] = datasets_folder.joinpath('q3/CerealsCleanNormalLabeled.csv')
 	
 FILEPATH_EW_AIRLINE:_Final[_Path] = datasets_folder.joinpath('EastWestAirlinesCluster.csv')
