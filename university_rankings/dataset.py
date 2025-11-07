@@ -6,6 +6,7 @@ from typing import (
 	Union as _Union,
 	ClassVar as _ClassVar,
 	Tuple as _Tuple,
+	Dict as _Dict,
 )
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
@@ -84,83 +85,61 @@ class CleanNormalUniversity(_DatasetCSV):
 			self.frame = _pd.DataFrame(normalizer.fit_transform(frame))
 		else:
 			raise Exception('invalid path, rankings = None')
-	
-	def agglomerative_cluster(self,
-				n_clusters:_Optional[int],
-				distance_threshold:_Optional[int]
-			)->_AgglomerativeClustering:
-		''' Returns the model created through agglomerative modeling. 
-		n_clusters -- the number of clusters
-		'''
-		if n_clusters is None == distance_threshold is None:
-			raise Exception('Only one may be set')
-		logger.debug(f'CleanNormalUniversity.agglomerative_cluster(k={n_clusters}, dt={distance_threshold})')
-		if n_clusters is None:
-			return _AgglomerativeClustering(
-				n_clusters=None,
-				distance_threshold=distance_threshold,
-				metric='euclidean',
-				linkage='complete',
-				compute_full_tree=True,
-				compute_distances=True,
-			)
-		elif distance_threshold is None:
-			return _AgglomerativeClustering(
-				n_clusters=n_clusters,
-				metric='euclidean',
-				linkage='complete',
-				compute_full_tree=True,
-				compute_distances=True,
-			)
-		raise Exception('unintended')
 
-	def plot_dendrogram(self,
-				model:_AgglomerativeClustering,
-			)->_Tuple[_Figure, _Axes]:
-		''' perf hierarhical clustering
-		Arguments:
-		model -- If you have already made the model, provide it. Ignore n_clusters & distance threshold arguments
-		n_clusters -- given to AgglomerativeClustering
-		distance_threshold -- given to AgglomerativeClustering
-		
-		- Linkage:Complete
-		- Distance:eculidean
-		- Normalized data
-		Returns the dendrogram plot & model
-		'''
-		logger.debug('CleanNormalUniversity.plot_dendrogram')
-		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
-		model.fit(self.get_frame())
-		counts = _np.zeros(model.children_.shape[0])
-		n_samples = len(model.labels_)
-		for i, merge in enumerate(model.children_):
-			current_count = 0
-			for child_idx in merge:
-				if child_idx < n_samples:
-					current_count += 1  # leaf node
-				else:
-					current_count += counts[child_idx - n_samples]
-		counts[i] = current_count
-		fig,ax = _plt.subplots(figsize=(10,10))
-		_dendrogram(_np.column_stack([
-			model.children_,model.distances_, counts
-		]), ax=ax)
-		return fig,ax
 
+# def compare_clusters(data:CleanNormalUniversity, n_clusters:_Optional[int]=None, distance_threshold:int = 0):
+# 	logger.info(f'compare_clusters(n_clusters={n_clusters})')
+# 	model = data.agglomerative_cluster(n_clusters, distance_threshold)
+# 	frame = data.get_frame().copy()
+# 	labels = model.fit_predict(frame)
+# 	frame['LABELS']=labels
+# 	frame_by_label = frame.groupby(by='LABELS')
+# 	median_stats = frame_by_label.median()
+# 	mean_stats = frame_by_label.mean()
+# 	logger.info(f'frame_by_label:{frame_by_label}')
+# 	logger.info(f'mean_stats:{mean_stats}')
+# 	logger.info(f'median_stats:{median_stats}')
+# 	return
 	
 def plot_and_save_dendrogram(
 			file:_Path,
 			data:CleanNormalUniversity,
 			model:_AgglomerativeClustering,
 			show:bool=False
-		)->None:
+		):
+	# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
 	logger.debug(f'plot_and_save_dendrogram({file},...,...)')
-	fig,ax = data.plot_dendrogram(model)
+
+	model.fit(data.get_frame())
+	counts = _np.zeros(model.children_.shape[0])
+	n_samples = len(model.labels_)
+	for i, merge in enumerate(model.children_):
+		current_count = 0
+		for child_idx in merge:
+			if child_idx < n_samples:
+				current_count += 1  # leaf node
+			else:
+				current_count += counts[child_idx - n_samples]
+	counts[i] = current_count
+	fig,ax = _plt.subplots(figsize=(10,10))
+
+	logger.debug('call dendrogram plotter')	
+	_dendrogram(_np.column_stack([
+		model.children_,model.distances_, counts
+	]), ax=ax)
+	
 	logger.info(f'saving dendrogram to {file}.')
 	fig.savefig(fname=str(file))
 	if show:
 		fig.show()
-	return
+	return fig,ax
+
+aggcluster_default_args:_Dict = {
+	'metric':'euclidean',
+	'linkage':'complete',
+	'compute_full_tree':True,
+	'compute_distances':True,
+}
 
 def question_two():
 	logger.info('===== Question Two =====')
@@ -168,15 +147,28 @@ def question_two():
 	cleanNormal = CleanNormalUniversity(rankings=rankings)
 	cleanNormal.save()
 	
-	d_fig, d_ax, model = cleanNormal.plot_dendrogram()
-	# d_fig.show()
-	logger.info('saving dendrogram.')
-	d_fig.savefig(fname=_Q2D.DendrogramFigure)
-	logger.info(f'clusters: {model.n_clusters_}')
-	logger.warning('we must somehow estimate the proper amount of clusters....')
-	
-	n_clusters = [2,4,6]
-	for n in n_clusters:
-		compare_clusters(n, cleanNormal)
+	plot_and_save_dendrogram(
+		file=_Path('dendrogram k=None dt=0.tiff'),
+		data= cleanNormal,
+		model= _AgglomerativeClustering(
+			n_clusters=None,
+			distance_threshold=0,
+			**aggcluster_default_args
+		)
+	)
+	ideal_threshold:float = 0.2
+	logger.info('We have identified the distance threshold, by observation, as 0.2')
+	for it in [x/10 for x in range(0, 10, 1)]:
+		logger.debug(f'x:{it}')
+		plot_and_save_dendrogram(
+			file=_Path(f'dendrogram dt={it}.tiff'),
+			data= cleanNormal,
+			model= _AgglomerativeClustering(
+				n_clusters=None,
+				distance_threshold=it,
+				**aggcluster_default_args
+			)
+		)
+	# compare_clusters(n, cleanNormal)
 	logger.info('========================')
 	return
