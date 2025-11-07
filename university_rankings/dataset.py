@@ -122,7 +122,7 @@ class CleanNormalUniversity(_DatasetCSV):
 		if show:
 			fig.show()
 		return fig,ax
-	
+
 class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	default_Path:_ClassVar[_Path] = _Q2D.CleanNormalLabeled
 	aggcluster_default_args:_ClassVar[_Dict] = {
