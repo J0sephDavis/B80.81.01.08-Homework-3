@@ -105,7 +105,8 @@ def plot_and_save_dendrogram(
 			file:_Path,
 			data:CleanNormalUniversity,
 			model:_AgglomerativeClustering,
-			show:bool=False
+			show:bool=False,
+			dendrogram_args:_Dict={}
 		):
 	# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
 	logger.debug(f'plot_and_save_dendrogram({file},...,...)')
@@ -121,12 +122,14 @@ def plot_and_save_dendrogram(
 			else:
 				current_count += counts[child_idx - n_samples]
 	counts[i] = current_count
+	
 	fig,ax = _plt.subplots(figsize=(10,10))
-
 	logger.debug('call dendrogram plotter')	
-	_dendrogram(_np.column_stack([
-		model.children_,model.distances_, counts
-	]), ax=ax)
+	_dendrogram(
+		Z= _np.column_stack([model.children_,model.distances_, counts]),
+		ax=ax,
+		**dendrogram_args
+	)
 	
 	logger.info(f'saving dendrogram to {file}.')
 	fig.savefig(fname=str(file))
@@ -139,6 +142,7 @@ aggcluster_default_args:_Dict = {
 	'linkage':'complete',
 	'compute_full_tree':True,
 	'compute_distances':True,
+	'n_clusters':None, # must be none when distance_threshold is set.
 }
 
 def question_two():
@@ -148,26 +152,27 @@ def question_two():
 	cleanNormal.save()
 	
 	plot_and_save_dendrogram(
-		file=_Path('dendrogram k=None dt=0.tiff'),
+		file=_Path('dendrogram dt=0.tiff'),
 		data= cleanNormal,
 		model= _AgglomerativeClustering(
-			n_clusters=None,
 			distance_threshold=0,
 			**aggcluster_default_args
 		)
 	)
-	ideal_threshold:float = 0.2
-	logger.info('We have identified the distance threshold, by observation, as 0.2')
-	for it in [x/10 for x in range(0, 10, 1)]:
-		logger.debug(f'x:{it}')
+	for it in [x/100 for x in range(40, 105, 5)]:
+		if it==0: continue
+		logger.debug(f'distance_threshold:{it}')
 		plot_and_save_dendrogram(
-			file=_Path(f'dendrogram dt={it}.tiff'),
+			file=_Path(f'dendrogram dt={it:0.2f}.tiff'),
 			data= cleanNormal,
 			model= _AgglomerativeClustering(
-				n_clusters=None, # must be none when distance_threshold is set.
 				distance_threshold=it,
 				**aggcluster_default_args
-			)
+			),
+			dendrogram_args= {
+				# 'truncate_mode':'lastp',
+				'color_threshold':it
+			}
 		)
 	# compare_clusters(n, cleanNormal)
 	logger.info('========================')
