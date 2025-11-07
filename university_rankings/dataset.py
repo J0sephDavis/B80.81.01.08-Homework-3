@@ -164,7 +164,7 @@ def question_two():
 			file=_Path(f'dendrogram dt={it}.tiff'),
 			data= cleanNormal,
 			model= _AgglomerativeClustering(
-				n_clusters=None,
+				n_clusters=None, # must be none when distance_threshold is set.
 				distance_threshold=it,
 				**aggcluster_default_args
 			)
