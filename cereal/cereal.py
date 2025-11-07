@@ -76,6 +76,39 @@ class CleanNormalCereal(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 
+
+class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
+	COLUMN_LABEL:_ClassVar[str] = 'LABEL'
+	default_Path:_ClassVar[_Path] = _Q3D.CerealCleanedNormalLabeled
+	aggcluster_default_args:_ClassVar[_Dict] = {
+		'metric':'euclidean',
+		'linkage':'complete',
+		'compute_full_tree':True,
+		'compute_distances':True,
+		'n_clusters':None, # must be none when distance_threshold is set.
+	}
+	distance_threshold:float
+	model:_AgglomerativeClustering
+
+	def __init__(self, rankings:CleanNormalCereal, distance_threshold:float):
+		logger.debug('CleanNormalLabeled.__init__')
+		super().__init__(path=self.default_Path, frame=None)
+		self.distance_threshold = distance_threshold
+		
+		self.figure_file = _Q3D.folder_dendrograms.joinpath(f'dendrogram dt={self.distance_threshold:0.2f}.tiff')
+		
+		self.model = _AgglomerativeClustering(
+			distance_threshold=self.distance_threshold,
+			**self.aggcluster_default_args
+		)
+		self.frame = rankings.get_frame().copy()
+		self.model.fit(self.frame)
+		self.get_frame()[self.COLUMN_LABEL]=self.model.labels_
+	
+	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
+		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
+		return _plot_dendrogram(self.figure_file, self.distance_threshold, self.model, save_to_file, show)
+	
 def question_three():
 	cereal = CerealRanking()
 	cerealCN = CleanNormalCereal(cereal=cereal)
