@@ -21,7 +21,7 @@ from helpers.dataset import (
 	DatasetBase as _DatasetBase,
 	DatasetCSV as _DatasetCSV,
 	DatasetCSVReadOnly as _DatasetCSVReadOnly,
-	DatasetSaveMixin as _DSaveMixin,
+	DatasetSaveMixin as _DatasetSaveMixin,
 	DatasetLoadCSVMixin as _DLoadCSVMixin,
 	DatasetTextFileMixin as _DatasetTextFileMixin,
 )
@@ -123,7 +123,7 @@ class CleanNormalUniversity(_DatasetCSV):
 			fig.show()
 		return fig,ax
 	
-class CleanNormalLabeled(_DatasetCSV):
+class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	default_Path:_ClassVar[_Path] = _Q2D.CleanNormalLabeled
 	aggcluster_default_args:_ClassVar[_Dict] = {
 		'metric':'euclidean',
@@ -224,9 +224,6 @@ class CleanNormalLabeled(_DatasetCSV):
 				fig.savefig(file)
 			if show:
 				fig.show()
-
-
-
 
 def generate_many_dendrograms(cleanNormalRankings:CleanNormalUniversity)->None:
 	logger.info('CleanNormalUniversity.generate_many_dendrograms')
