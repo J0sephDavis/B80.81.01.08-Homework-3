@@ -67,13 +67,6 @@ class UniversityRankings(_DatasetCSVReadOnly):
 		RatioStudentFaculty = r'stud./fac. ratio'
 		GraduationRate = r'Graduation rate'
 
-aggcluster_default_args:_Dict = {
-	'metric':'euclidean',
-	'linkage':'complete',
-	'compute_full_tree':True,
-	'compute_distances':True,
-	'n_clusters':None, # must be none when distance_threshold is set.
-}
 
 class CleanNormalUniversity(_DatasetCSV):
 	default_path:_ClassVar[_Path] = _Q2D.CleanNormal
@@ -129,38 +122,125 @@ class CleanNormalUniversity(_DatasetCSV):
 		if show:
 			fig.show()
 		return fig,ax
-
-	def generate_many_dendrograms(self)->None:
-		logger.info('CleanNormalUniversity.generate_many_dendrograms')
-		dendrogram_folder=_Q2D.DendrogramFolder
-		dendrogram_folder.mkdir(mode=0o775, parents=True,exist_ok=True)
-		self.plot_and_save_dendrogram(
-			file=_Path('dendrogram dt=0.tiff'),
-			model= _AgglomerativeClustering(
-				distance_threshold=0,
-				**aggcluster_default_args
-			)
-		)
-		for it in [x/100 for x in range(40, 105, 5)]:
-			if it==0:# skip
-				continue
-			logger.debug(f'distance_threshold:{it}')
-			file=dendrogram_folder.joinpath(f'dendrogram dt={it:0.2f}.tiff')
-			if file.exists():
-				logger.info(f'{file} already exists. skipping...')
-				continue
-			self.plot_and_save_dendrogram(
-				file=file,
-				model= _AgglomerativeClustering(
-					distance_threshold=it,
-					**aggcluster_default_args
-				),
-				dendrogram_args= {
-					# 'truncate_mode':'lastp',
-					'color_threshold':it
-				}
-			)
 	
+class CleanNormalLabeled(_DatasetCSV):
+	default_Path:_ClassVar[_Path] = _Q2D.CleanNormalLabeled
+	aggcluster_default_args:_ClassVar[_Dict] = {
+		'metric':'euclidean',
+		'linkage':'complete',
+		'compute_full_tree':True,
+		'compute_distances':True,
+		'n_clusters':None, # must be none when distance_threshold is set.
+	}
+	distance_threshold:float
+	model:_AgglomerativeClustering
+
+	def __init__(self, rankings:CleanNormalUniversity, distance_threshold:float):
+		logger.debug('CleanNormalLabeled.__init__')
+		super().__init__(path=self.default_Path, frame=None)
+		self.distance_threshold = distance_threshold
+		
+		self.figure_file = _Q2D.folder_dendrograms.joinpath(f'dendrogram dt={self.distance_threshold:0.2f}.tiff')
+		
+		self.model = _AgglomerativeClustering(
+			distance_threshold=self.distance_threshold,
+			**self.aggcluster_default_args
+		)
+		frame = rankings.get_frame().copy()
+		frame['LABEL'] = self.model.fit_predict(frame)
+		self.frame = frame
+	
+	def plotsave_dendrogram(self, show:bool=False)->_Tuple[_Figure,_Axes]:
+		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
+		self.model.fit(self.get_frame())
+		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
+		# Generate linkage table
+		counts = _np.zeros(self.model.children_.shape[0])
+		n_samples = len(self.model.labels_)
+		for i, merge in enumerate(self.model.children_):
+			current_count = 0
+			for child_idx in merge:
+				if child_idx < n_samples:
+					current_count += 1  # leaf node
+				else:
+					current_count += counts[child_idx - n_samples]
+		counts[i] = current_count
+		
+		fig,ax = _plt.subplots(figsize=(10,10))
+		logger.debug('call dendrogram plotter')	
+		_dendrogram(
+			Z= _np.column_stack([self.model.children_,self.model.distances_, counts]),
+			ax=ax,
+			color_threshold=self.distance_threshold
+		)
+		
+		logger.info(f'saving dendrogram to {self.figure_file}.')
+		fig.savefig(fname=str(self.figure_file))
+		if show:
+			fig.show()
+		return fig,ax
+	
+	def get_summary_statistics(self, save_to_file:bool=True, show:bool=False)->_Tuple[_pd.DataFrame, _pd.DataFrame]:
+		''' Calculates mean & median with groupby=LABEL, saves and returns frames. '''
+		frame_by_label = self.get_frame().groupby(by='LABEL')
+		median = frame_by_label.median()
+		mean = frame_by_label.mean()
+
+
+		meanfig,ax = _plt.subplots()
+		mean.plot(kind='bar',ax=ax)
+
+		medianfig,ax=_plt.subplots()
+		median.plot(kind='bar',ax=ax)
+		if save_to_file:
+			median.to_csv(_Q2D.CleanNormalMedian)
+			mean.to_csv(_Q2D.CleanNormalMean)
+			meanfig.savefig('meanfig.tiff')
+			medianfig.savefig('medianfig.tiff')
+			logger.info('saved CleanNormalMedian & Mean')
+		if show:
+			medianfig.show()
+			meanfig.show()
+		return median,mean
+	
+	def  plot_boxplots(self,save_to_file:bool=True, show:bool=False)->None:
+		''' Creates a boxplot for subsets of the frame by LABEL. '''
+		logger.info('Plotting features boxplots...')
+		frame=self.get_frame()
+		for label in frame['LABEL'].unique():
+			file = _Q2D.folder_boxplots.joinpath(f'university_cn boxplot label={label}.tiff')
+			if file.exists():
+				logger.warning(f'File already exists. Skipping. {file}')
+			fig,ax = _plt.subplots()
+			fig.suptitle(f'UniversityCleanNormal Agglomerative Label: {label}')
+			fig.set_dpi(500)
+			fig.set_size_inches((10,10))
+			label_frame = frame.loc[frame['LABEL']==label].drop(columns=['LABEL'])
+			label_frame.boxplot(
+				ax=ax, rot=25
+			)
+			ax.set_ylim(0,1)
+			if save_to_file:
+				fig.savefig(file)
+			if show:
+				fig.show()
+
+
+
+
+def generate_many_dendrograms(cleanNormalRankings:CleanNormalUniversity)->None:
+	logger.info('CleanNormalUniversity.generate_many_dendrograms')
+	CleanNormalLabeled(cleanNormalRankings, 0).plotsave_dendrogram(False)
+	for it in [x/100 for x in range(40, 105, 5)]:
+		if it==0:# skip
+			continue
+		logger.debug(f'distance_threshold:{it}')
+		data = CleanNormalLabeled(cleanNormalRankings,it)
+		if data.figure_file.exists():
+			logger.info(f'{data.figure_file} already exists. skipping...')
+			continue
+		data.plotsave_dendrogram(False)
+
 
 def question_two():
 	logger.info('===== Question Two =====')
