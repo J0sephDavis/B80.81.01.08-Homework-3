@@ -12,24 +12,28 @@ Frequent Item Set -- The frequent itemsets, for assignment results
 Association Rules -- The rules for analysis
 '''
 app_logger_name:_Final[str] = 'HW3'
+datasets_folder:_Path = _Path('datasets')
 class QuestioneOneData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.Q1'
-	Groceries:_ClassVar[_Path] = _Path('datasets/q1/groceries.csv') # Raw data
-	PreProcessed:_ClassVar[_Path]=_Path('datasets/q1/recommendation_data.csv') # Hot encoded data
-	FrequentItemSet:_ClassVar[_Path]=_Path('datasets/q1/frequent_item_set.csv') # Meets support
-	AssociatonRules:_ClassVar[_Path]=_Path('datasets/q1/association_rules.csv') # Meets confidence
+	Groceries:_ClassVar[_Path] = datasets_folder.joinpath('q1/groceries.csv') # Raw data
+	PreProcessed:_ClassVar[_Path]=datasets_folder.joinpath('q1/recommendation_data.csv') # Hot encoded data
+	FrequentItemSet:_ClassVar[_Path]=datasets_folder.joinpath('q1/frequent_item_set.csv') # Meets support
+	AssociatonRules:_ClassVar[_Path]=datasets_folder.joinpath('q1/association_rules.csv') # Meets confidence
 
 class QuestionTwoData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.Q2'
-	Rankings:_ClassVar[_Path]= _Path('datasets/q2/Universities.csv')
-	CleanNormal:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormal.csv')
-	CleanNormalMean:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalMean.csv')
-	CleanNormalMedian:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalMedian.csv')
+	Rankings:_ClassVar[_Path]= datasets_folder.joinpath('q2/Universities.csv')
+	CleanNormal:_ClassVar[_Path] = datasets_folder.joinpath('q2/UCleanNormal.csv')
+	CleanNormalMean:_ClassVar[_Path] = datasets_folder.joinpath('q2/UCleanNormalMean.csv')
+	CleanNormalMedian:_ClassVar[_Path] = datasets_folder.joinpath('q2/UCleanNormalMedian.csv')
 	folder_dendrograms:_ClassVar[_Path] = _Path('q2/dendrograms')
 	folder_boxplots:_ClassVar[_Path] = _Path('q2/boxplots')
-	CleanNormalLabeled:_ClassVar[_Path] = _Path('datasets/q2/UCleanNormalLabeled.csv')
-	PrivatePublicLabels:_ClassVar[_Path] = _Path('datasets/q2/PublicPrivateSummary.csv')
-	StateLabels:_ClassVar[_Path] = _Path('datasets/q2/StateLabelSummary.csv')
+	CleanNormalLabeled:_ClassVar[_Path] = datasets_folder.joinpath('q2/UCleanNormalLabeled.csv')
+	PrivatePublicLabels:_ClassVar[_Path] = datasets_folder.joinpath('q2/PublicPrivateSummary.csv')
+	StateLabels:_ClassVar[_Path] = datasets_folder.joinpath('q2/StateLabelSummary.csv')
+
+class QuestionThreeData:
+	logger_name:_ClassVar[str] = f'{app_logger_name}.Q3'
+	Cereal:_ClassVar[_Path] = datasets_folder.joinpath('q3/Cereals.csv')
 	
-FILEPATH_EW_AIRLINE:_Final[_Path] = _Path('datasets/EastWestAirlinesCluster.csv')
-FILEPATH_CEREAL:_Final[_Path] = _Path('datasets/Cereals.csv')
+FILEPATH_EW_AIRLINE:_Final[_Path] = datasets_folder.joinpath('EastWestAirlinesCluster.csv')
