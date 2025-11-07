@@ -35,5 +35,6 @@ class QuestionTwoData:
 class QuestionThreeData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.Q3'
 	Cereal:_ClassVar[_Path] = datasets_folder.joinpath('q3/Cereals.csv')
+	folder_dendrograms:_ClassVar[_Path] = _Path('q3/dendrograms')
 	
 FILEPATH_EW_AIRLINE:_Final[_Path] = datasets_folder.joinpath('EastWestAirlinesCluster.csv')
