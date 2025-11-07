@@ -63,7 +63,6 @@ class UniversityRankings(_DatasetCSVReadOnly):
 		RatioStudentFaculty = r'stud./fac. ratio'
 		GraduationRate = r'Graduation rate'
 
-
 class CleanNormalUniversity(_DatasetCSV):
 	default_path:_ClassVar[_Path] = _Q2D.CleanNormal
 	logger.debug(f'CleanNormalUniversity.default_path: {default_path}')
@@ -84,40 +83,6 @@ class CleanNormalUniversity(_DatasetCSV):
 			self.frame = _pd.DataFrame(normalizer.fit_transform(frame), columns=frame.columns)
 		else:
 			raise Exception('invalid path, rankings = None')
-		
-	def plot_and_save_dendrogram(self,
-				file:_Path,
-				model:_AgglomerativeClustering,
-				show:bool=False,
-				dendrogram_args:_Dict={}
-			)->_Tuple[_Figure, _Axes]:
-		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
-		logger.debug(f'plot_and_save_dendrogram({file},...,...)')
-		model.fit(self.get_frame())
-		counts = _np.zeros(model.children_.shape[0])
-		n_samples = len(model.labels_)
-		for i, merge in enumerate(model.children_):
-			current_count = 0
-			for child_idx in merge:
-				if child_idx < n_samples:
-					current_count += 1  # leaf node
-				else:
-					current_count += counts[child_idx - n_samples]
-		counts[i] = current_count
-		
-		fig,ax = _plt.subplots(figsize=(10,10))
-		logger.debug('call dendrogram plotter')	
-		_dendrogram(
-			Z= _np.column_stack([model.children_,model.distances_, counts]),
-			ax=ax,
-			**dendrogram_args
-		)
-		
-		logger.info(f'saving dendrogram to {file}.')
-		fig.savefig(fname=str(file))
-		if show:
-			fig.show()
-		return fig,ax
 
 class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	COLUMN_LABEL:_ClassVar[str] = 'LABEL'
