@@ -27,6 +27,8 @@ from helpers.dataset import (
 )
 import logging
 logger = logging.getLogger(_Q2D.logger_name)
+_Q2D.folder_dendrograms.mkdir(mode=0o775, parents=True,exist_ok=True)
+_Q2D.folder_boxplots.mkdir(mode=0o775, parents=True, exist_ok=True)
 import matplotlib.pyplot as _plt
 from matplotlib.figure import Figure as _Figure
 from matplotlib.axes import Axes as _Axes
