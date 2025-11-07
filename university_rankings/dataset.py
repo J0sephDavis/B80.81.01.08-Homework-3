@@ -251,22 +251,14 @@ def question_two():
 	except:
 		logger.debug('cleanNormal data already exists, did not overwrite.')
 		pass
-	cleanNormal.generate_many_dendrograms() # Generate our data for viewing
-	logger.info('create ideal model')
+	generate_many_dendrograms(cleanNormal)
 	
-	ideal_model = _AgglomerativeClustering(distance_threshold=0.80, **aggcluster_default_args)
-	frame = cleanNormal.get_frame().copy()
-	frame['LABELS'] = ideal_model.fit_predict(frame)
-
-	frame_by_label = frame.groupby(by='LABELS')
-
-	median_stats = frame_by_label.median()
-	mean_stats = frame_by_label.mean()
-
-	logger.info(f'frame_by_label:{frame_by_label}')
-	logger.info(f'mean_stats:{mean_stats}')
-	logger.info(f'median_stats:{median_stats}')
 	logger.info('A distance threshold of 0.80 was decided upon for our ideal model.')
-	# compare_clusters(n, cleanNormal)
+	labeledData:CleanNormalLabeled = CleanNormalLabeled(cleanNormal, 0.80)
+	labeledData.save()
+
+	labeledData.get_summary_statistics(save_to_file=True)
+	labeledData.plot_boxplots(save_to_file=True,show=False)
+
 	logger.info('========================')
 	return
