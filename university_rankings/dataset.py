@@ -148,7 +148,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		)
 		self.frame = rankings.get_frame().copy()
 		self.model.fit(self.frame)
-		self.get_frame()['LABELS']=self.model.labels_
+		self.get_frame()['LABEL']=self.model.labels_
 	
 	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
 		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
@@ -197,7 +197,6 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 				shadow=True
 			)
 
-		
 		if save_to_file:
 			fig.savefig(fname=str(self.figure_file))
 		if show:
@@ -271,7 +270,7 @@ def question_two():
 	except:
 		logger.debug('cleanNormal data already exists, did not overwrite.')
 		pass
-	generate_many_dendrograms(cleanNormal, save_to_file=False, show=True)
+	generate_many_dendrograms(cleanNormal, save_to_file=True, show=False)
 	
 	logger.info('A distance threshold of 0.80 was decided upon for our ideal model.')
 	labeledData:CleanNormalLabeled = CleanNormalLabeled(cleanNormal, 0.80)
