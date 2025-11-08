@@ -45,13 +45,20 @@ def question_four():
 	try: ffn.save(clobber=False)
 	except FileExistsError: pass
 	format_string = 'dendrogram metric={metric} linkage={linkage} dt={distance_threshold:0.3f}.tiff'
+	thresholds_5_6:_List[float] = [x/10 for x in range(50,60,1)]
+	threholds_0_20 = [float(x) for x in range(3,15,1)]
 	_generate_many_dendrograms(
-		data=ffn.get_frame(), thresholds=[x/100 for x in range(0,20*100,100)],
+		data=ffn.get_frame(), thresholds=thresholds_5_6,
 		folder=_Q4D.folder_figures, file_str_fmt=format_string,
 		linkage='ward', metric='euclidean',
 		save_to_file=True, raise_err_exists=False, clobber=False
 	)
-
+	_generate_many_dendrograms(
+		data=ffn.get_frame(), thresholds=threholds_0_20,
+		folder=_Q4D.folder_figures, file_str_fmt=format_string,
+		linkage='ward', metric='euclidean',
+		save_to_file=True, raise_err_exists=False, clobber=False
+	)
 	# ffl = _FrequentFliersLabeled(ffn, dendrogram=_CustomDendrogram(
 	# 	file=_Path('tmp.csv'), distance_threshold=0,linkage='complete',
 	# 	save_to_file=True, raise_err_exists=False, clobber=True, metric='ward',
