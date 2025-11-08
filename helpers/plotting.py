@@ -27,7 +27,8 @@ import matplotlib.patches as _patches
 def plot_dendrogram(
 			file:_Path, distance_threshold:float,
 			model:_AgglomerativeClustering,
-			save_to_file:bool, show:bool
+			linkage:str,
+			save_to_file:bool, show:bool,
 		)->_Tuple[_Figure,_Axes]:
 		''' Generate a dendrogram from the pre-fit model. '''
 		logger.debug(f'plot_and_save_dendrogram({file},...,...)')
@@ -45,7 +46,7 @@ def plot_dendrogram(
 		counts[i] = current_count
 		
 		fig,ax = _plt.subplots(figsize=(10,10))
-		ax.set_title(f'distance_threshold={distance_threshold:0.2f}')
+		ax.set_title(f'linkage={linkage} distance_threshold={distance_threshold:0.2f}')
 		logger.debug('call dendrogram plotter')	
 		dend = _dendrogram(
 			Z= _np.column_stack([model.children_,model.distances_, counts]),
@@ -68,7 +69,7 @@ def plot_dendrogram(
 			ax.legend(
 				handles= legend_patches,
 				title=f'Clusters ({len(color_map)})',
-				loc='upper center',
+				loc='lower center',
 				frameon=True,
 				bbox_to_anchor=(0.5,1.05),
 				ncol=8,
@@ -80,4 +81,6 @@ def plot_dendrogram(
 			fig.savefig(fname=str(file))
 		if show:
 			fig.show()
+		else:
+			_plt.close(fig=fig)
 		return fig,ax

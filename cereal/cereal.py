@@ -1,10 +1,12 @@
 from enum import StrEnum as _StrEnum
 from pathlib import Path as _Path
 from typing import (
+	List as _List,
 	Optional as _Optional,
 	ClassVar as _ClassVar,
 	Tuple as _Tuple,
 	Dict as _Dict,
+	Literal as _Literal,
 )
 from helpers.plotting import plot_dendrogram as _plot_dendrogram
 import pandas as _pd
@@ -82,33 +84,40 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	default_Path:_ClassVar[_Path] = _Q3D.CerealCleanedNormalLabeled
 	aggcluster_default_args:_ClassVar[_Dict] = {
 		'metric':'euclidean',
-		'linkage':'complete',
 		'compute_full_tree':True,
 		'compute_distances':True,
 		'n_clusters':None, # must be none when distance_threshold is set.
 	}
 	distance_threshold:float
 	model:_AgglomerativeClustering
+	linkage:_Literal['single','complete']
 
-	def __init__(self, rankings:CleanNormalCereal, distance_threshold:float):
+	def __init__(self, cleanCereal:CleanNormalCereal, distance_threshold:float, linkage:_Literal['single','complete']):
 		logger.debug('CleanNormalLabeled.__init__')
 		super().__init__(path=self.default_Path, frame=None)
 		self.distance_threshold = distance_threshold
-		
-		self.figure_file = _Q3D.folder_dendrograms.joinpath(f'dendrogram dt={self.distance_threshold:0.2f}.tiff')
+		self.linkage = linkage
+		self.figure_file = _Q3D.folder_dendrograms.joinpath(f'dendrogram linkage={self.linkage} dt={self.distance_threshold:0.2f}.tiff')
 		
 		self.model = _AgglomerativeClustering(
 			distance_threshold=self.distance_threshold,
+			linkage=linkage,
 			**self.aggcluster_default_args
 		)
-		self.frame = rankings.get_frame().copy()
+		self.frame = cleanCereal.get_frame().copy()
 		self.model.fit(self.frame)
 		self.get_frame()[self.COLUMN_LABEL]=self.model.labels_
 	
 	def plotsave_dendrogram(self, save_to_file:bool=True, show:bool=False)->_Tuple[_Figure,_Axes]:
 		logger.debug(f'plot_and_save_dendrogram({self.figure_file},...,...)')
-		return _plot_dendrogram(self.figure_file, self.distance_threshold, self.model, save_to_file, show)
-	
+		return _plot_dendrogram(
+			file=self.figure_file,
+			distance_threshold=self.distance_threshold,
+			model=self.model,
+			save_to_file=save_to_file,
+			show=show,
+			linkage=self.linkage
+		)
 def question_three():
 	cereal = CerealRanking()
 	cerealCN = CleanNormalCereal(cereal=cereal)
