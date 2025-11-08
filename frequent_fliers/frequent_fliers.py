@@ -15,10 +15,15 @@ from helpers.plotting import (
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
 from sklearn.preprocessing import Normalizer as _Normalizer
-from sklearn.cluster import KMeans as _KMeans
-from scipy.cluster.hierarchy import dendrogram as _dendrogram
+from sklearn.neighbors import (
+	NearestNeighbors as _NearestNeighbors
+)
+from sklearn.cluster import (
+	KMeans as _KMeans,
+	DBSCAN as _DBSCAN
+)
 import numpy as _np
-from defs import QuestionFourData as _Q4D
+from defs import QuestionFiveData as _Q5D
 
 from helpers.dataset import (
 	DatasetBase as _DatasetBase,
@@ -26,11 +31,10 @@ from helpers.dataset import (
 	DatasetCSVReadOnly as _DatasetCSVReadOnly,
 	DatasetSaveMixin as _DatasetSaveMixin,
 )
-from defs import FlierData as _FD
 import logging
-logger = logging.getLogger(_Q4D.logger_name)
-_Q4D.folder_figures.mkdir(mode=0o775, parents=True,exist_ok=True)
-_Q4D.folder_datasets.mkdir(mode=0o775, parents=True,exist_ok=True)
+logger = logging.getLogger(_Q5D.logger_name)
+_Q5D.folder_figures.mkdir(mode=0o775, parents=True,exist_ok=True)
+_Q5D.folder_datasets.mkdir(mode=0o775, parents=True,exist_ok=True)
 import matplotlib.pyplot as _plt
 from matplotlib.figure import Figure as _Figure
 from matplotlib.axes import Axes as _Axes
@@ -114,5 +118,58 @@ def question_four():
 	comparison_frame.groupby(by='HC_LABEL').value_counts().to_csv(
 		_Q4D.folder_datasets.joinpath('label_comparison_kmeans_hc_full_valcount.csv')
 	)
+
+	return
+
+def create_elbow(frame):
+	n_neighbors=5
+	neighbors = _NearestNeighbors(n_neighbors=n_neighbors)
+	estimator = neighbors.fit(frame)
+	distances,index=estimator.kneighbors(frame,n_neighbors)
+	kth_distances = _np.sort(distances[:,n_neighbors-1])
+	fig,ax = _plt.subplots()
+	ax.plot(kth_distances)
+	ax.set_ylabel('Distance')
+	ax.set_xlabel('Points')
+	ax.set_title('k=5 k-Distance graph')
+	ax.axhline(0.020)
+	ax.set_ybound(0,0.1)
+	ax.set_xbound(lower=0)
+	ax.grid(visible=True, which='both', axis='x')
+	_plt.close(fig=fig)
+	return fig,ax
+
+def run_dbscan(frame, eps:float, file:_Path):
+	logger.debug(f'run_dbscan, eps={eps} file={file}')
+	dbscan  =_DBSCAN(eps=eps, min_samples=5)
+	dbscan.fit(frame)
+	return dbscan
+
+def question_five():
+	ff = _FrequentFliers()
+	ffn = _FrequentFliersNormalized(ff)
+	frame = ffn.get_frame()
+	elbow_file = _Q5D.folder_figures.joinpath('kNN elbow.tiff')
+	dbscan_labels_valcount = _Q5D.folder_datasets.joinpath('dbscan label val count.csv')
+	dbscan_labels = _Q5D.folder_datasets.joinpath('dbscan_labeled.csv')
+	dbscan_centroids = _Q5D.folder_datasets.joinpath('dbscan_centroids.csv')
+	
+	if not elbow_file.exists():
+		logger.info('finding elbow')
+		elbow_graph = create_elbow(frame=frame)
+		elbow_graph[0].savefig(elbow_file)
+	
+	logger.info('Optimal epsilon is about 0.02?')
+	eps =0.02
+	if not (dbscan_labels_valcount.exists() and dbscan_labels.exists() and dbscan_centroids.exists()):
+		logger.info('dbscan')
+		dbscan = run_dbscan(frame,eps,_Q5D.folder_figures.joinpath(f'dbscan eps={eps}.tiff'))
+		labeled_frame = (frame.copy())
+		labeled_frame['DBSCAN']=dbscan.labels_
+		valcnt = labeled_frame['DBSCAN'].value_counts()
+		logger.info('saving dbscan data')
+		valcnt.to_csv(dbscan_labels_valcount)
+		labeled_frame.to_csv(dbscan_labels)
+		labeled_frame.groupby(by='DBSCAN').mean().to_csv(dbscan_centroids)
 
 	return
