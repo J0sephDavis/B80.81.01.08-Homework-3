@@ -118,8 +118,29 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			show=show,
 			linkage=self.linkage
 		)
+def generate_many_dendrograms(cleanData:CleanNormalCereal, save_to_file:bool, show:bool, linkage, thresholds:_List[float])->None:
+	logger.info('cereal.generate_many_dendrograms')
+	CleanNormalLabeled(cleanData, 0, linkage).plotsave_dendrogram(save_to_file=save_to_file,show=show)
+	for it in thresholds:
+		if it==0:# skip
+			continue
+		logger.debug(f'distance_threshold:{it}')
+		data = CleanNormalLabeled(cleanData,it, linkage)
+		if data.figure_file.exists() and save_to_file:
+			logger.info(f'{data.figure_file} already exists. skipping...')
+			continue
+		data.plotsave_dendrogram(save_to_file=save_to_file,show=show)
+
+
 def question_three():
 	cereal = CerealRanking()
 	cerealCN = CleanNormalCereal(cereal=cereal)
-	
+	complete_distance_thresholds=[x/100 for x in range(30, 105, 5)]
+	single_distance_thresholds=[x/100 for x in range(4,32,2)]
+	generate_many_dendrograms(cerealCN,save_to_file=True,show=False, linkage='single', thresholds=single_distance_thresholds)
+	generate_many_dendrograms(cerealCN,save_to_file=True,show=False, linkage='complete', thresholds=complete_distance_thresholds)
+	logger.info('best split is 0.80')
+	# labeled = CleanNormalLabeled(cleanCereal=cerealCN, distance_threshold=0.8)
+	# labeled.save()
+
 	return
