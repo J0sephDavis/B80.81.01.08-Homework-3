@@ -52,7 +52,7 @@ class CustomDendrogram():
 	model:_Optional[_AgglomerativeClustering] = _field(default=None, init=False)
 	file:_Path # Where the figure will be saved
 	distance_threshold:float # used for clustering & plotting
-	linkage:_Literal['single','complete']
+	linkage:_Literal['single','complete','ward']
 	data:_pd.DataFrame # The dataframe we want to fit our clusters to.
 	# User may care.
 	save_to_file:bool = _field(default=True) # Should we save to file on a call to plot_dendrogram?
