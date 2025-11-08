@@ -14,6 +14,7 @@ from typing import (
 	ClassVar as _ClassVar,
 	Tuple as _Tuple,
 	Dict as _Dict,
+	Literal as _Literal,
 )
 import pandas as _pd
 from sklearn.cluster import AgglomerativeClustering as _AgglomerativeClustering
@@ -23,40 +24,77 @@ import matplotlib.pyplot as _plt
 from matplotlib.figure import Figure as _Figure
 from matplotlib.axes import Axes as _Axes
 import matplotlib.patches as _patches
+from dataclasses import (
+	dataclass as _dataclass,
+	field as _field
+)
 
-def plot_dendrogram(
-			file:_Path, distance_threshold:float,
-			model:_AgglomerativeClustering,
-			linkage:str,
-			save_to_file:bool, show:bool,
-		)->_Tuple[_Figure,_Axes]:
-		''' Generate a dendrogram from the pre-fit model. '''
-		logger.debug(f'plot_and_save_dendrogram({file},...,...)')
-		# Plotting code from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
-		# Generate linkage table
-		counts = _np.zeros(model.children_.shape[0])
-		n_samples = len(model.labels_)
-		for i, merge in enumerate(model.children_):
-			current_count = 0
-			for child_idx in merge:
-				if child_idx < n_samples:
-					current_count += 1  # leaf node
-				else:
-					current_count += counts[child_idx - n_samples]
+def create_linkage_matrix(model:_AgglomerativeClustering):
+	''' From https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html '''
+	logger.debug(f'create_linkage_matrix')
+	counts = _np.zeros(model.children_.shape[0])
+	n_samples = len(model.labels_)
+	for i, merge in enumerate(model.children_):
+		current_count = 0
+		for child_idx in merge:
+			if child_idx < n_samples:
+				current_count += 1  # leaf node
+			else:
+				current_count += counts[child_idx - n_samples]
 		counts[i] = current_count
-		
-		fig,ax = _plt.subplots(figsize=(10,10))
-		ax.set_title(f'linkage={linkage} distance_threshold={distance_threshold:0.2f}')
-		logger.debug('call dendrogram plotter')	
-		dend = _dendrogram(
-			Z= _np.column_stack([model.children_,model.distances_, counts]),
-			ax=ax,
-			color_threshold=distance_threshold
+	return _np.column_stack(
+		[model.children_, model.distances_, counts]
+	).astype(float)
+
+@_dataclass
+class CustomDendrogram():
+	''' can be used like a monad '''
+	model:_Optional[_AgglomerativeClustering] = _field(default=None, init=False)
+	file:_Path # Where the figure will be saved
+	distance_threshold:float # used for clustering & plotting
+	linkage:_Literal['single','complete']
+	data:_pd.DataFrame # The dataframe we want to fit our clusters to.
+	# User may care.
+	save_to_file:bool = _field(default=True) # Should we save to file on a call to plot_dendrogram?
+	show:bool = _field(default=False) # Should we show the figure or close the figure during plot_dendrogram?
+
+	# default values that probably do not change
+	metric:str = _field(default='euclidean')
+	compute_full_tree:bool = _field(default=True)
+	compute_distances:bool = _field(default=True)
+	n_clusters:_Optional[int] = _field(default=None)
+
+	figure_title:str = _field(init=False)
+	figure_size:_Tuple[float,float] = _field(default=(10,10))
+	def __post_init__(self):
+		logger.debug(f'{self.__class__}.__post_init__')
+		self.figure_title = f'linkage={self.linkage} distance_threshold={self.distance_threshold:0.2f}'
+
+	def get_model(self, force_refresh:bool=False):
+		logger.debug(f"{self.__class__}.create_model\n{self}")
+		if not force_refresh and self.model is not None:
+			return self.model
+		logger.info('generating model')
+		self.model = _AgglomerativeClustering(
+			linkage=self.linkage,
+			distance_threshold=self.distance_threshold,
+			metric=self.metric,
+			compute_full_tree=self.compute_full_tree,
+			compute_distances=self.compute_distances,
+			n_clusters=self.n_clusters,
 		)
+		self.model.fit(self.data)
+		return self.model
+	
+	def _create_legend(self, dendrogram_data:_Dict, ax:_Axes):
+		''' Creates the legend based on the cluster labels in the model,
+		 and the colors that scipy used.
+		'''
+		logger.debug(f"{self.__class__}._create_legend")
 		# https://stackoverflow.com/questions/4700614/how-to-put-the-legend-outside-the-plot
-		leafa = dend['leaves']
-		ordered_clust = model.labels_[leafa]
-		leaf_colors=dend['leaves_color_list']
+		leafa = dendrogram_data['leaves']
+		ordered_clust = self.get_model().labels_[leafa]
+		leaf_colors=dendrogram_data['leaves_color_list']
 		color_map = {}
 		for lbl,color in zip(ordered_clust, leaf_colors):
 			color_map.setdefault(lbl,color)
@@ -76,11 +114,23 @@ def plot_dendrogram(
 				fancybox=True,
 				shadow=True
 			)
-
-		if save_to_file:
-			fig.savefig(fname=str(file))
-		if show:
-			fig.show()
 		else:
-			_plt.close(fig=fig)
+			logger.debug('color map >= 50, not drawing legend.')
+
+	def plot_dendrogram(self)->_Tuple[_Figure,_Axes]:
+		''' Plots the dendrogram data'''
+		logger.debug(f"{self.__class__}.plot_dendrogram")
+		fig,ax=_plt.subplots(figsize=self.figure_size)
+		ax.set_title(self.figure_title)
+		
+		dend = _dendrogram(
+			Z=create_linkage_matrix(self.get_model()),
+			ax=ax,
+			color_threshold=self.distance_threshold
+		)
+		self._create_legend(dend, ax)
+		if self.save_to_file:
+			fig.savefig(fname=str(self.file))
+		
+		fig.show() if self.show else _plt.close(fig=fig)
 		return fig,ax
