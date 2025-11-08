@@ -125,7 +125,7 @@ def question_three():
 		
 		show=False,
 		folder=_Q3D.folder_dendrograms,
-		file_str_fmt= 'linkage={linkage} dt={distance_threshold}.tiff',
+		file_str_fmt= 'linkage={linkage} dt={distance_threshold:0.2f}.tiff',
 		save_to_file=True, clobber=False, raise_err_exists=False
 
 	))

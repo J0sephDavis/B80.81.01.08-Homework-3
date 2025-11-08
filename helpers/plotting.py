@@ -157,7 +157,7 @@ def generate_many_dendrograms(
 		data:_pd.DataFrame,
 		thresholds:_List[float],
 		folder:_Optional[_Path] = None,
-		file_str_fmt:str = 'linkage={linkage} dt={distance_threshold}',
+		file_str_fmt:str = 'linkage={linkage} dt={distance_threshold:0.2f}',
 		**init_kwargs
 		)->_List[CustomDendrogram]:
 	def make_file_name(linkage:str,distance_threshold:float)->_Path:
