@@ -1,12 +1,9 @@
 from enum import StrEnum as _StrEnum
 from pathlib import Path as _Path
 from typing import (
-	List as _List,
 	Optional as _Optional,
 	ClassVar as _ClassVar,
 	Tuple as _Tuple,
-	Dict as _Dict,
-	Literal as _Literal,
 )
 from helpers.plotting import (
 	CustomDendrogram as _CustomDendrogram,
@@ -15,9 +12,6 @@ from helpers.plotting import (
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
 from sklearn.preprocessing import Normalizer as _Normalizer
-from sklearn.cluster import AgglomerativeClustering as _AgglomerativeClustering
-from scipy.cluster.hierarchy import dendrogram as _dendrogram
-import numpy as _np
 from defs import QuestionThreeData as _Q3D
 
 from helpers.dataset import (
@@ -29,9 +23,7 @@ from helpers.dataset import (
 import logging
 logger = logging.getLogger(_Q3D.logger_name)
 _Q3D.folder_dendrograms.mkdir(mode=0o775, parents=True,exist_ok=True)
-import matplotlib.pyplot as _plt
-from matplotlib.figure import Figure as _Figure
-from matplotlib.axes import Axes as _Axes
+_Q3D.folder_datasets.mkdir(mode=0o775, exist_ok=True, parents=True)
 
 class CerealRanking(_DatasetCSVReadOnly):
 	default_path:_ClassVar[_Path] = _Q3D.Cereal

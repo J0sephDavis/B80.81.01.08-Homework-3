@@ -43,6 +43,11 @@ try:
 	if RUN_Q3:
 		from cereal.cereal import question_three
 		question_three()
+
+	if RUN_Q4:
+		from frequent_fliers.frequent_fliers import question_four
+		question_four()
+		
 except Exception as e:
 	logger.error('UNHANDLED EXCEPTION', exc_info=e)
 
