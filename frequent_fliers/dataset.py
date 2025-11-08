@@ -51,34 +51,47 @@ class FrequentFliersNormalized(_DatasetCSV):
 	log_prefix:_ClassVar[str] = f'{__qualname__}'
 	logger.debug(f'{log_prefix}.default_path: {__qualname__}')
 	
-	def __init__(self, frequent_fliers:_Optional[FrequentFliers]=None):
+	def __init__(self, frequent_fliers:_Optional[FrequentFliers]=None, frame:_Optional[_pd.DataFrame] = None):
 		logger.debug(f'{self.log_prefix}.__init__({frequent_fliers})')
-		super().__init__(path=self.default_path, frame=None)
-		if self.path is not None and self.path.exists():
+		super().__init__(path=self.default_path, frame=frame)
+		if self.frame is not None:
+			logger.debug(f'{self.log_prefix} loaded from frame.')
+			self.frame=frame
+		elif self.path is not None and self.path.exists():
 			logger.debug(f'{self.log_prefix}.__init__ - loaded from file')
 			self.load()
 		elif frequent_fliers is not None:
-			logger.debug(f'{self.log_prefix}.__init__ - cleaning & normalizing from dataset')
-			frame:_pd.DataFrame = frequent_fliers.get_frame().drop(columns=[
-				FrequentFliers.Columns.ID,
-				FrequentFliers.Columns.Award, # Categorical
-			]).dropna(how='any', axis=0)
-			normalizer = _Normalizer()
-			self.frame = _pd.DataFrame(normalizer.fit_transform(frame), columns=frame.columns)
+			self._clean_and_normalize(frequent_fliers)
 		else:
 			raise Exception('invalid path, rankings = None')
+	
+	def _clean_and_normalize(self,frequent_fliers:FrequentFliers):
+		logger.debug(f'{self.log_prefix}._clean_and_normalize')
+		frame:_pd.DataFrame = frequent_fliers.get_frame().drop(columns=[
+			FrequentFliers.Columns.ID,
+			FrequentFliers.Columns.Award, # Categorical
+		]).dropna(how='any', axis=0)
+		normalizer = _Normalizer()
+		self.frame = _pd.DataFrame(normalizer.fit_transform(frame), columns=frame.columns)
+
+	def sample_existing(self, sample_frac:float)->'FrequentFliersNormalized':
+		frame = self.get_frame().sample(frac=sample_frac).copy()
+		ffn = FrequentFliersNormalized()
+		return ffn
 
 class FrequentFliersLabeled(_DatasetBase, _DatasetSaveMixin):
 	COLUMN_LABEL:_ClassVar[str] = 'LABEL'
-	default_path:_ClassVar[_Path] = _FD.Normalized
 	dendrogram:_CustomDendrogram
 	log_prefix:_ClassVar[str] = f'{__qualname__}'
-	logger.debug(f'{log_prefix}.default_path: {__qualname__}')
 
-	def __init__(self, ffNorm:FrequentFliersNormalized, dendrogram:_CustomDendrogram):
+	def __init__(self,
+			  ffNorm:FrequentFliersNormalized,
+			  dendrogram:_CustomDendrogram,
+			  file_path:_Path,
+			):
 		logger.debug(f'{self.log_prefix}.__init__')
 		super().__init__(
-			path=self.default_path,
+			path=file_path,
 			frame=ffNorm.get_frame().copy()
 		)
 		self.dendrogram = dendrogram
