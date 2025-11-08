@@ -200,5 +200,12 @@ def question_two():
 	label_by_state = frame.groupby(by=CleanNormalLabeled.COLUMN_LABEL).value_counts(subset=[UniversityRankings.Columns.State])
 	label_by_state.to_csv(_Q2D.StateLabels,index=True)
 
+
+	# Impute harvard.
+	frame = rankings.get_frame().copy()
+	harvard = frame.loc[frame[UniversityRankings.Columns.CollegeName].str.contains('harvard',case=False,regex=False)]
+	harvard.describe()
+
+
 	logger.info('========================')
 	return
