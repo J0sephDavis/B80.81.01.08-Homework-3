@@ -95,6 +95,13 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 		self.dendrogram = dendrogram
 		self.get_frame()[self.COLUMN_LABEL] = dendrogram.get_model().labels_
 
+	def get_summary_statistics(self)->_Tuple[_pd.DataFrame, _pd.DataFrame]:
+			''' Calculates mean & median with groupby=LABEL, saves and returns frames. '''
+			frame_by_label = self.get_frame().groupby(by=self.COLUMN_LABEL)
+			median = frame_by_label.median()
+			mean = frame_by_label.mean()
+			return median,mean
+	
 def question_three():
 	cereal = CerealRanking()
 	cerealCN = CleanNormalCereal(cereal=cereal)
