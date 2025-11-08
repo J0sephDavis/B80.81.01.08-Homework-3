@@ -159,9 +159,9 @@ def generate_many_dendrograms(
 		file_str_fmt:str = 'linkage={linkage} dt={distance_threshold:0.2f}',
 		**init_kwargs
 		)->_List[CustomDendrogram]:
-	def make_file_name(linkage:str,distance_threshold:float)->_Path:
+	def make_file_name(**vars)->_Path:
 		# TODO: just pass kwargs/dict as an argument so the fmt string could be anything related to our obj.
-		basename:str = file_str_fmt.format(linkage=linkage,distance_threshold=distance_threshold)
+		basename:str = file_str_fmt.format(**vars)
 		if folder is not None:
 			return folder.joinpath(basename)
 		return _Path(basename)
@@ -170,7 +170,7 @@ def generate_many_dendrograms(
 			distance_threshold=thresh,
 			data=data,
 			file = make_file_name(
-				linkage=init_kwargs.get('linkage'),  distance_threshold=thresh
+				distance_threshold=thresh, **init_kwargs
 			),
 			**init_kwargs
 		)
