@@ -44,12 +44,13 @@ def question_four():
 	ffn = _FrequentFliersNormalized(ff)
 	try: ffn.save(clobber=False)
 	except FileExistsError: pass
-	format_string = 'dendrogram_lastp metric={metric} linkage={linkage} dt={distance_threshold:0.3f}.tiff'
+	format_string = 'dendrogram metric={metric} linkage={linkage} dt={distance_threshold:05.2f}.tiff'
 	thresholds:_List[float] = [ 
-		3.0, 4.0, 5.0,
-		5.4, 5.5, 5.6,
-		5.8, 7.0, 12.0,
-		14.0,
+		3.0, 3.2,
+		3.4, 3.6, 4.0,
+		5.0, 5.4, 5.5,
+		5.6, 5.8, 7.0,
+		12.0,14.0,
 	]
 	
 	_generate_many_dendrograms(

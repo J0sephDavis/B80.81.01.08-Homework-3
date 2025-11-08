@@ -135,7 +135,6 @@ class CustomDendrogram():
 			Z=create_linkage_matrix(self.get_model()),
 			ax=ax,
 			color_threshold=self.distance_threshold,
-			truncate_mode='lastp'
 		)
 		ax.axhline(
 			y=self.distance_threshold,
