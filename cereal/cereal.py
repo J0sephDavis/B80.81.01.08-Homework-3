@@ -115,7 +115,7 @@ def question_three():
 		show=False,
 		folder=_Q3D.folder_dendrograms,
 		file_str_fmt= 'linkage={linkage} dt={distance_threshold}.tiff',
-		save_to_file=True,
+		save_to_file=True, clobber=False, raise_err_exists=False
 	)
 	logger.info('Generated single linkeage dendrograms.')
 	dendrograms.extend(_generate_many_dendrograms(
@@ -126,7 +126,8 @@ def question_three():
 		show=False,
 		folder=_Q3D.folder_dendrograms,
 		file_str_fmt= 'linkage={linkage} dt={distance_threshold}.tiff',
-		save_to_file=True,
+		save_to_file=True, clobber=False, raise_err_exists=False
+
 	))
 	logger.info(f'Generated complete linkeage dendrograms. ({len(dendrograms)})')
 	labeled = CleanNormalLabeled(cleanCereal=cerealCN, dendrogram=_CustomDendrogram(

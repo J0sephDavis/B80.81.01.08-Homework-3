@@ -56,6 +56,8 @@ class CustomDendrogram():
 	data:_pd.DataFrame # The dataframe we want to fit our clusters to.
 	# User may care.
 	save_to_file:bool = _field(default=True) # Should we save to file on a call to plot_dendrogram?
+	clobber:bool = _field(default=False)
+	raise_err_exists:bool = _field(default=True) # raise err if file exists and clobber=False
 	show:bool = _field(default=False) # Should we show the figure or close the figure during plot_dendrogram?
 
 	# default values that probably do not change
@@ -117,8 +119,12 @@ class CustomDendrogram():
 		else:
 			logger.debug('color map >= 50, not drawing legend.')
 
-	def plot_dendrogram(self)->_Tuple[_Figure,_Axes]:
+	def plot_dendrogram(self)->_Optional[_Tuple[_Figure,_Axes]]:
 		''' Plots the dendrogram data'''
+		if self.save_to_file and not self.show:
+			if not self.clobber and not self.raise_err_exists and self.file.exists():
+				logger.info(f'plot_dendrogram. skipping... File ({self.file}) exists, clobber=False, raise_err=False, show=False')
+				return None
 		logger.debug(f"{self.__class__}.plot_dendrogram")
 		fig,ax=_plt.subplots(figsize=self.figure_size)
 		ax.set_title(self.figure_title)
@@ -130,7 +136,15 @@ class CustomDendrogram():
 		)
 		self._create_legend(dend, ax)
 		if self.save_to_file:
-			fig.savefig(fname=str(self.file))
+			if self.file.exists():
+				if self.clobber:
+					fig.savefig(fname=str(self.file))
+				elif self.raise_err_exists:
+					raise FileExistsError(f'Cannot create dendrogram, file already exists. {self.file}')
+				else:
+					logger.warning(f'File already exists, but not raising err: {self.file}')
+			else:
+				fig.savefig(fname=str(self.file))
 		
 		fig.show() if self.show else _plt.close(fig=fig)
 		return fig,ax
