@@ -44,7 +44,7 @@ class QuestionThreeData:
 class FlierData:
 	logger_name:_ClassVar[str] = f'{app_logger_name}.fliers'
 	FrequentFliers:_Final[_Path] = folder_root_datasets.joinpath('EastWestAirlinesCluster.csv')
-	Normalized:_ClassVar[_Path] = folder_root_datasets.joinpath('Normalized.csv')
+	Normalized:_ClassVar[_Path] = folder_root_datasets.joinpath('EastWestNormalized.csv')
 
 class QuestionFourData:
 	logger_name:_ClassVar[str] = f'{FlierData.logger_name}.Q4'
@@ -54,3 +54,8 @@ class QuestionFourData:
 	LabeledEuclidean:_ClassVar[_Path] = folder_datasets.joinpath('LabeledEuclidean.csv')
 	LabeledWard:_ClassVar[_Path] = folder_datasets.joinpath('LabeledWard.csv')
 	LabeledKMeans:_ClassVar[_Path] = folder_datasets.joinpath('LabeledKMeans.csv')
+
+class QuestionFiveData:
+	logger_name:_ClassVar[str] = f'{FlierData.logger_name}.Q5'
+	folder_datasets:_ClassVar[_Path] = folder_root_datasets.joinpath('q5')
+	folder_figures:_ClassVar[_Path] = _Path('q5')
