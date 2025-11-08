@@ -44,17 +44,16 @@ def question_four():
 	ffn = _FrequentFliersNormalized(ff)
 	try: ffn.save(clobber=False)
 	except FileExistsError: pass
-	format_string = 'dendrogram metric={metric} linkage={linkage} dt={distance_threshold:0.3f}.tiff'
-	thresholds_5_6:_List[float] = [x/10 for x in range(50,60,1)]
-	threholds_0_20 = [float(x) for x in range(3,15,1)]
+	format_string = 'dendrogram_lastp metric={metric} linkage={linkage} dt={distance_threshold:0.3f}.tiff'
+	thresholds:_List[float] = [ 
+		3.0, 4.0, 5.0,
+		5.4, 5.5, 5.6,
+		5.8, 7.0, 12.0,
+		14.0,
+	]
+	
 	_generate_many_dendrograms(
-		data=ffn.get_frame(), thresholds=thresholds_5_6,
-		folder=_Q4D.folder_figures, file_str_fmt=format_string,
-		linkage='ward', metric='euclidean',
-		save_to_file=True, raise_err_exists=False, clobber=False
-	)
-	_generate_many_dendrograms(
-		data=ffn.get_frame(), thresholds=threholds_0_20,
+		data=ffn.get_frame(), thresholds=thresholds,
 		folder=_Q4D.folder_figures, file_str_fmt=format_string,
 		linkage='ward', metric='euclidean',
 		save_to_file=True, raise_err_exists=False, clobber=False
