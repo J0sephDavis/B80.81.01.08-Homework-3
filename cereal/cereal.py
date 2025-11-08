@@ -8,7 +8,10 @@ from typing import (
 	Dict as _Dict,
 	Literal as _Literal,
 )
-from helpers.plotting import plot_dendrogram as _plot_dendrogram
+from helpers.plotting import (
+	CustomDendrogram as _CustomDendrogram,
+	generate_many_dendrograms as _generate_many_dendrograms
+)
 import pandas as _pd
 from helpers.dataset import DatasetBase as _DatasetBase
 from sklearn.preprocessing import Normalizer as _Normalizer
@@ -137,8 +140,26 @@ def question_three():
 	cerealCN = CleanNormalCereal(cereal=cereal)
 	complete_distance_thresholds=[x/100 for x in range(30, 105, 5)]
 	single_distance_thresholds=[x/100 for x in range(4,32,2)]
-	generate_many_dendrograms(cerealCN,save_to_file=True,show=False, linkage='single', thresholds=single_distance_thresholds)
-	generate_many_dendrograms(cerealCN,save_to_file=True,show=False, linkage='complete', thresholds=complete_distance_thresholds)
+	_generate_many_dendrograms(
+		data=cerealCN.get_frame(),
+		linkage='single',
+		thresholds=single_distance_thresholds,
+		
+		show=False,
+		folder=_Q3D.folder_dendrograms,
+		file_str_fmt= 'linkage={linkage} dt={distance_threshold}.tiff',
+		save_to_file=True,
+	)
+	_generate_many_dendrograms(
+		data=cerealCN.get_frame(),
+		linkage='complete',
+		thresholds=complete_distance_thresholds,
+		
+		show=False,
+		folder=_Q3D.folder_dendrograms,
+		file_str_fmt= 'linkage={linkage} dt={distance_threshold}.tiff',
+		save_to_file=True,
+	)
 	logger.info('best split is 0.80')
 	# labeled = CleanNormalLabeled(cleanCereal=cerealCN, distance_threshold=0.8)
 	# labeled.save()
