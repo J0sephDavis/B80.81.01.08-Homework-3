@@ -78,7 +78,6 @@ class CleanNormalCereal(_DatasetCSV):
 		else:
 			raise Exception('invalid path, rankings = None')
 
-
 class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 	COLUMN_LABEL:_ClassVar[str] = 'LABEL'
 	default_Path:_ClassVar[_Path] = _Q3D.CerealCleanedNormalLabeled
@@ -118,6 +117,7 @@ class CleanNormalLabeled(_DatasetBase, _DatasetSaveMixin):
 			show=show,
 			linkage=self.linkage
 		)
+
 def generate_many_dendrograms(cleanData:CleanNormalCereal, save_to_file:bool, show:bool, linkage, thresholds:_List[float])->None:
 	logger.info('cereal.generate_many_dendrograms')
 	CleanNormalLabeled(cleanData, 0, linkage).plotsave_dendrogram(save_to_file=save_to_file,show=show)
