@@ -25,9 +25,10 @@ _setup_handler(STREAM_HANDLER)
 
 RUN_Q1:bool = False
 RUN_Q2:bool = False
-RUN_Q3:bool = True
+RUN_Q3:bool = False
 logger.debug(f'RUN_Q1:{RUN_Q1}')
 logger.debug(f'RUN_Q2:{RUN_Q2}')
+logger.debug(f'RUN_Q3:{RUN_Q3}')
 try:
 	if RUN_Q1:
 		from grocery_recommendation.dataset import question_one
