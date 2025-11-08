@@ -129,21 +129,27 @@ def question_three():
 		save_to_file=True, clobber=False, raise_err_exists=False
 
 	))
+
 	logger.info(f'Generated complete linkeage dendrograms. ({len(dendrograms)})')
-	labeled = CleanNormalLabeled(cleanCereal=cerealCN, dendrogram=_CustomDendrogram(
-		data=cerealCN.get_frame(),
-		distance_threshold=0.80,
-		linkage='complete',
-		file=_Path(''), save_to_file=False,
-		show=False,
-	))
-	labeled.save()
-	median,mean = labeled.get_summary_statistics()
-	
-	median.to_csv(_Q3D.folder_datasets.joinpath(
-		labeled.dendrogram.format_from_vars('CCNL Group by Label linkage={linkage} dt={distance_threshold} median.csv')
-	))
-	median.to_csv(_Q3D.folder_datasets.joinpath(
-		labeled.dendrogram.format_from_vars('CCNL Group by Label linkage={linkage} dt={distance_threshold} mean.csv')
-	))
+	def make_example(dt:float, linkage):
+		labeled = CleanNormalLabeled(cleanCereal=cerealCN, dendrogram=_CustomDendrogram(
+			data=cerealCN.get_frame(),
+			distance_threshold=dt,
+			linkage=linkage,
+			file=_Path(''),
+			save_to_file=True, clobber=False, raise_err_exists=False,
+			show=False,
+		))
+		dend = labeled.dendrogram
+		dend.file = _Q3D.folder_dendrograms.joinpath(
+			dend.format_from_vars('linkage={linkage} dt={distance_threshold}.tiff')
+		)
+		labeled.save()
+		median,mean = labeled.get_summary_statistics()
+		mean.to_csv(_Q3D.folder_datasets.joinpath(
+			labeled.dendrogram.format_from_vars('CCNL Group by Label linkage={linkage} dt={distance_threshold} mean.csv')
+		))
+
+	make_example(dt=0.80, linkage='complete')
+	make_example(dt=0.28, linkage='single')
 	return
