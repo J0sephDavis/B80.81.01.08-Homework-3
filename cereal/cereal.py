@@ -138,5 +138,12 @@ def question_three():
 		show=False,
 	))
 	labeled.save()
-
+	median,mean = labeled.get_summary_statistics()
+	
+	median.to_csv(_Q3D.folder_datasets.joinpath(
+		labeled.dendrogram.format_from_vars('CCNL Group by Label linkage={linkage} dt={distance_threshold} median.csv')
+	))
+	median.to_csv(_Q3D.folder_datasets.joinpath(
+		labeled.dendrogram.format_from_vars('CCNL Group by Label linkage={linkage} dt={distance_threshold} mean.csv')
+	))
 	return
