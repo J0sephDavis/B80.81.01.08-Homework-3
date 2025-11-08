@@ -91,7 +91,7 @@ class CustomDendrogram():
 	def format_from_vars(self, fmt_str:str):
 		return fmt_str.format(**vars(self))
 	
-	def _create_legend(self, dendrogram_data:_Dict, ax:_Axes):
+	def _create_legend(self, dendrogram_data:_Dict, fig:_Figure, ax:_Axes):
 		''' Creates the legend based on the cluster labels in the model,
 		 and the colors that scipy used.
 		'''
@@ -109,12 +109,11 @@ class CustomDendrogram():
 				_patches.Patch(color=color_map[k],label=f'C{k}')
 				for k in sorted(color_map)
 			]
-			ax.legend(
+			fig.legend(
 				handles= legend_patches,
 				title=f'Clusters ({len(color_map)})',
-				loc='lower center',
+				loc='upper center',
 				frameon=True,
-				bbox_to_anchor=(0.5,1.05),
 				ncol=8,
 				fancybox=True,
 				shadow=True
@@ -137,7 +136,7 @@ class CustomDendrogram():
 			ax=ax,
 			color_threshold=self.distance_threshold
 		)
-		self._create_legend(dend, ax)
+		self._create_legend(dend, fig, ax)
 		if self.save_to_file:
 			if self.file.exists():
 				if self.clobber:
