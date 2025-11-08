@@ -134,3 +134,32 @@ class CustomDendrogram():
 		
 		fig.show() if self.show else _plt.close(fig=fig)
 		return fig,ax
+	
+
+def generate_many_dendrograms(
+		data:_pd.DataFrame,
+		thresholds:_List[float],
+		folder:_Optional[_Path] = None,
+		file_str_fmt:str = 'linkage={linkage} dt={distance_threshold}',
+		**init_kwargs
+		)->_List[CustomDendrogram]:
+	def make_file_name(linkage:str,distance_threshold:float)->_Path:
+		# TODO: just pass kwargs/dict as an argument so the fmt string could be anything related to our obj.
+		basename:str = file_str_fmt.format(linkage=linkage,distance_threshold=distance_threshold)
+		if folder is not None:
+			return folder.joinpath(basename)
+		return _Path(basename)
+	plots = [
+		CustomDendrogram(
+			distance_threshold=thresh,
+			data=data,
+			file = make_file_name(
+				linkage=init_kwargs.get('linkage'),  distance_threshold=thresh
+			),
+			**init_kwargs
+		)
+		for thresh in thresholds
+	]
+	for plot in plots:
+		plot.plot_dendrogram()
+	return plots
