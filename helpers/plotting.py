@@ -136,6 +136,22 @@ class CustomDendrogram():
 			ax=ax,
 			color_threshold=self.distance_threshold
 		)
+		ax.axhline(
+			y=self.distance_threshold,
+			linestyle='--',
+			color='k', linewidth=1, zorder=100
+		)
+		axTransformData = ax.transData.transform((0,self.distance_threshold))
+		_, y_val = fig.transFigure.inverted().transform(axTransformData)
+
+		ax.text(
+			x=0.01,
+			y=y_val,
+			s=f'threshold: {self.distance_threshold:0.3f}',
+			color='k', fontsize=10,
+			transform=fig.transFigure,
+			clip_on=False,
+		)
 		self._create_legend(dend, fig, ax)
 		if self.save_to_file:
 			if self.file.exists():
