@@ -88,6 +88,9 @@ class CustomDendrogram():
 		self.model.fit(self.data)
 		return self.model
 	
+	def format_from_vars(self, fmt_str:str):
+		return fmt_str.format(**vars(self))
+	
 	def _create_legend(self, dendrogram_data:_Dict, ax:_Axes):
 		''' Creates the legend based on the cluster labels in the model,
 		 and the colors that scipy used.
